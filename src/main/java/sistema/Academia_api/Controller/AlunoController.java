@@ -3,6 +3,7 @@ package sistema.Academia_api.Controller;
 import jakarta.validation.Valid;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
+import org.springframework.data.domain.Page;
 import sistema.Academia_api.alunos.AlunoRequest;
 import sistema.Academia_api.alunos.AlunoResponse;
 import sistema.Academia_api.service.AlunoService;
@@ -47,10 +48,14 @@ public class AlunoController {
         return alunoService.desativarAluno(id);
     }
 
-    @GetMapping("/buscar/{nome}")
-    public List<AlunoResponse> buscarAlunoPorNome(@PathVariable String nome) {
-        return alunoService.buscar(nome);
-    }
+   @GetMapping("/buscar/{nome}")
+public Page<AlunoResponse> buscarAlunoPorNome(
+        @PathVariable String nome,
+        @RequestParam(defaultValue = "0") int page,
+        @RequestParam(defaultValue = "10") int size) {
+
+    return alunoService.buscar(nome, page, size);
+}
 
     @GetMapping
     public List<AlunoResponse> listarAlunos() {
