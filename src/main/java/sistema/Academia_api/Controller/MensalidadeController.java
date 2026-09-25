@@ -2,13 +2,8 @@ package sistema.Academia_api.Controller;
 
 import java.util.List;
 
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.PathVariable;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.PutMapping;
-import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.data.domain.Page;
+import org.springframework.web.bind.annotation.*;
 
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
@@ -41,8 +36,8 @@ public MensalidadeResponse alterar(@RequestBody @Valid MensalidadeRequest reques
 }
 
 @GetMapping("/listar")
-public List<MensalidadeResponse> listar () {
-    return mensalidadeService.listar();
+public Page<MensalidadeResponse> listar (@RequestParam(defaultValue = "0")int page, @RequestParam(defaultValue = "15")int size) {
+    return mensalidadeService.listar(page, size);
 }    
 @PutMapping ("/cancelar/{id}")
 public MensalidadeResponse cancelar(@PathVariable Long id) {

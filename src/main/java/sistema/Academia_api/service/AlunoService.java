@@ -134,13 +134,17 @@ public AlunoResponse desativarAluno(Long id) {
 
 }
 
-public List<AlunoResponse> listarAlunos() {
-   
-    return alunoRepository.findAll()
-    .stream()
-    .map(this::converterAlunoResponse)
-    .collect(Collectors.toList());
+public Page<AlunoResponse> listarAlunos(int page, int size) {
+    Pageable pageable = PageRequest.of(page, size);
+
+    Page<Aluno> alunos = alunoRepository.findAll(pageable);
+
+    return alunos.map(this::converterAlunoResponse);
+
 }
+
+
+
 
 public AlunoResponse salvarFotos(Long id, MultipartFile foto) throws IOException {
 
