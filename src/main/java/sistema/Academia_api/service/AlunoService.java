@@ -153,5 +153,4 @@ public AlunoResponse salvarFotos(Long id, MultipartFile foto) throws IOException
     Aluno alunoSalvo = salvarAluno(aluno);
     return converterAlunoResponse(alunoSalvo);
 }
-
 }
