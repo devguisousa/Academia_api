@@ -11,23 +11,23 @@ import jakarta.persistence.Table;
 import lombok.Getter;
 import lombok.Setter;
 
-@Entity
-@Getter
-@Setter
-@Table(name = "alunos")
+@Entity 
+@Getter 
+@Setter 
+@Table (name = "alunos")
 public class Aluno {
 
-    @Id
-    @GeneratedValue(strategy = GenerationType.IDENTITY)
+    @Id 
+    @GeneratedValue (strategy= GenerationType.IDENTITY)
     private Long id;
 
-    @Column(nullable = false)
+    @Column (nullable = false)
     private String nome;
 
     @Column(unique = true, nullable = false)
     private String email;
 
-    @Column(unique = true, nullable = false)
+    @Column(unique = true, nullable = false) 
     private String cpf;
 
     @Column(nullable = false)
@@ -40,10 +40,10 @@ public class Aluno {
     private String sexo;
 
     private String endereco;
-
+    
     private Boolean ativo = true;
 
-    @Column(name = "foto_url")
+    @Column(name = "foto_URL")
     private String fotoURL;
 
 }
