@@ -5,15 +5,17 @@ import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.List;
 import java.util.stream.Collectors;
+
 import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile; 
+
 import sistema.Academia_api.alunos.Aluno;
 import sistema.Academia_api.alunos.AlunoRequest;
 import sistema.Academia_api.alunos.AlunoResponse;
-import sistema.Academia_api.repository.AlunoRepository;
 import sistema.Academia_api.exception.AlunoException;
 import sistema.Academia_api.exception.CpfJaCadastrado;
 import sistema.Academia_api.exception.EmailJaCadastrado;
+import sistema.Academia_api.repository.AlunoRepository;
 @Service 
 public class AlunoService {
 
