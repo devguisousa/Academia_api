@@ -18,46 +18,6 @@ public class MensalidadeResponse {
 
     private LocalDate dataVencimento;
 
-    public LocalDate getDataVencimento() {
-        return dataVencimento;
-    }
-
-    public void setDataVencimento(LocalDate dataVencimento) {
-        this.dataVencimento = dataVencimento;
-    }
-
-    public Long getId() {
-        return id;
-    }
-
-    public void setId(Long id) {
-        this.id = id;
-    }
-
-    public long getMatriculaId() {
-        return matriculaId;
-    }
-
-    public void setMatriculaId(long matriculaId) {
-        this.matriculaId = matriculaId;
-    }
-
-    public StatusMensalidade getStatus() {
-        return status;
-    }
-
-    public void setStatus(StatusMensalidade status) {
-        this.status = status;
-    }
-
-    public BigDecimal getValor() {
-        return valor;
-    }
-
-    public void setValor(BigDecimal valor) {
-        this.valor = valor;
-    }
-
     private StatusMensalidade status;
 
     

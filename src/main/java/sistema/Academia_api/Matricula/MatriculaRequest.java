@@ -11,22 +11,6 @@ public class MatriculaRequest {
     @NotNull 
     private Long alunoId;
 
-    public Long getPlanoId() {
-        return PlanoId;
-    }
-
-    public void setPlanoId(Long planoId) {
-        PlanoId = planoId;
-    }
-
-    public Long getAlunoId() {
-        return alunoId;
-    }
-
-    public void setAlunoId(Long alunoId) {
-        this.alunoId = alunoId;
-    }
-
     @NotNull
     private Long PlanoId;
     

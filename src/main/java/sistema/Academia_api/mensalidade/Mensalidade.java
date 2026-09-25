@@ -38,46 +38,6 @@ public class Mensalidade {
     @Column (nullable = false)
     private LocalDate dataVencimento;
 
-    public BigDecimal getValor() {
-        return valor;
-    }
-
-    public void setValor(BigDecimal valor) {
-        this.valor = valor;
-    }
-
-    public StatusMensalidade getStatus() {
-        return status;
-    }
-
-    public void setStatus(StatusMensalidade status) {
-        this.status = status;
-    }
-
-    public Matricula getMatricula() {
-        return matricula;
-    }
-
-    public void setMatricula(Matricula matricula) {
-        this.matricula = matricula;
-    }
-
-    public Long getId() {
-        return id;
-    }
-
-    public void setId(Long id) {
-        this.id = id;
-    }
-
-    public LocalDate getDataVencimento() {
-        return dataVencimento;
-    }
-
-    public void setDataVencimento(LocalDate dataVencimento) {
-        this.dataVencimento = dataVencimento;
-    }
-
     @Enumerated (EnumType.STRING)
     @Column (nullable = false)
     private StatusMensalidade status = StatusMensalidade.PENDENTE;
