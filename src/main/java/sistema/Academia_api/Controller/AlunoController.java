@@ -65,7 +65,7 @@ public Page<AlunoResponse> buscarAlunoPorNome(
     return alunoService.buscar(nome, page, size);
 }
 
-    @GetMapping
+    @GetMapping ("/listar")
     public Page<AlunoResponse> listarAlunos(@RequestParam(defaultValue = "0")int page,
                                             @RequestParam(defaultValue = "20") int size) {
         return alunoService.listarAlunos(page,size);
