@@ -1,12 +1,10 @@
 package sistema.Academia_api.service;
 
 import java.time.LocalDate;
-
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
-
 import sistema.Academia_api.mensalidade.Mensalidade;
 import sistema.Academia_api.pagamentos.Pagamento;
 import sistema.Academia_api.pagamentos.PagamentoRequest;
@@ -25,7 +23,7 @@ public class PagamentoService {
         this.mensalidadeRepository = mensalidadeRepository;
     }
 
-    public Pagamento converterPagamento(PagamentoRequest request) {
+    private Pagamento converterPagamento(PagamentoRequest request) {
 
         Mensalidade mensalidade = mensalidadeRepository.findById(request.getMensalidadeId())
                 .orElseThrow(() -> new RuntimeException("mensalidade não existe"));
@@ -44,7 +42,7 @@ public class PagamentoService {
 
     }
 
-    public PagamentoResponse conveterResponse(Pagamento pagamento) {
+    private PagamentoResponse converterPagamentoResponse(Pagamento pagamento) {
         PagamentoResponse response = new PagamentoResponse();
 
         response.setId(pagamento.getId());
@@ -57,7 +55,7 @@ public class PagamentoService {
 
     }
 
-    public Pagamento salvar(Pagamento pagamento) {
+    private Pagamento salvarPagamento(Pagamento pagamento) {
         return pagamentoRepository.save(pagamento);
     }
 
@@ -67,7 +65,51 @@ public class PagamentoService {
 
         Page<Pagamento> pagamentos = pagamentoRepository.findAll(pageable);
 
-        return pagamentos.map(this::conveterResponse);
+        return pagamentos.map(this::converterPagamentoResponse);
 
     }
+
+    public PagamentoResponse buscar(Long id) {
+
+        Pagamento pagamento = pagamentoRepository.findById(id)
+                .orElseThrow(() -> new RuntimeException("pagamento não encontrado"));
+
+        return converterPagamentoResponse(pagamento);
+
+    }
+
+    public PagamentoResponse cadastrar(PagamentoRequest request) {
+        Pagamento pagamento = converterPagamento(request);
+
+        Pagamento pagamentoSalvo = salvarPagamento(pagamento);
+
+        return converterPagamentoResponse(pagamentoSalvo);
+    }
+
+    public PagamentoResponse alterar(Long id, PagamentoRequest request) {
+
+        Mensalidade mensalidade = mensalidadeRepository.findById(request.getMensalidadeId())
+                .orElseThrow(() -> new RuntimeException("mensalidade não existe"));
+        Pagamento pagamento = pagamentoRepository.findById(id)
+                .orElseThrow(() -> new RuntimeException("pagamento não encontrado"));
+
+        pagamento.setMensalidade(mensalidade);
+        pagamento.setFormaDePagamento(request.getFormaDePagamento());
+        pagamento.setValor(request.getValor());
+
+        Pagamento pagamentoSalvo = salvarPagamento(pagamento);
+
+        return converterPagamentoResponse(pagamentoSalvo);
+    }
+
+    public void deletar(Long id) {
+
+        if(!pagamentoRepository.existsById(id)) {
+            throw new RuntimeException("pagamento não existe");
+        }
+
+        pagamentoRepository.deleteById(id);
+
+    }
+
 }
