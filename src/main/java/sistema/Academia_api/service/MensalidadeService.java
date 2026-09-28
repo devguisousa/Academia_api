@@ -4,6 +4,7 @@ package sistema.Academia_api.service;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
+import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Service;
 
 import sistema.Academia_api.Matricula.Matricula;
@@ -13,6 +14,9 @@ import sistema.Academia_api.mensalidade.MensalidadeResponse;
 import sistema.Academia_api.mensalidade.StatusMensalidade;
 import sistema.Academia_api.repository.MatriculaRepository;
 import sistema.Academia_api.repository.MensalidadeRepository;
+
+import java.time.LocalDate;
+import java.util.List;
 
 @Service 
 public class MensalidadeService {
@@ -108,4 +112,31 @@ public class MensalidadeService {
          return converterResponse(mensalidadeCancelada);
      }
 
+     public MensalidadeResponse verificarAtraso(Long id) {
+        Mensalidade mensalidade = mensalidadeRepository.findById(id)
+                .orElseThrow(() -> new RuntimeException(("mensalidade não encontrada")));
+
+        if (mensalidade.getStatus() == StatusMensalidade.PENDENTE && mensalidade.getDataVencimento()
+                .isBefore(LocalDate.now())) {
+
+            mensalidade.setStatus(StatusMensalidade.ATRASADO);
+            mensalidadeRepository.save(mensalidade);
+
+
+        }
+         return converterResponse(mensalidade);
+     }
+
+     @Scheduled(cron = "0 0 0 * * *")
+    public void atualizarMensalidadeAtrasada() {
+        List<Mensalidade> mensalidades = mensalidadeRepository
+                .findByStatusAndDataVencimentoBefore(StatusMensalidade.PENDENTE, LocalDate.now());
+
+        for (Mensalidade mensalidade : mensalidades) {
+            if (mensalidade.getStatus() == StatusMensalidade.PENDENTE && mensalidade.getDataVencimento().isBefore(LocalDate.now())) {
+                mensalidade.setStatus(StatusMensalidade.ATRASADO);
+                mensalidadeRepository.save(mensalidade);
+            }
+        }
+     }
 }

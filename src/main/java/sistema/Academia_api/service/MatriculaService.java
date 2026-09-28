@@ -50,7 +50,7 @@ public class MatriculaService {
         LocalDate dataInicio = LocalDate.now();
 
         matricula.setDataInicio(dataInicio);
-        matricula.setDataFim(dataInicio.plusMonths(plano.getDuracao()));
+        matricula.setDataFim(dataInicio.plusDays(plano.getDuracao()));
         matricula.setAtivo(true);
 
         return matricula;

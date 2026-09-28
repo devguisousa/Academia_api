@@ -17,25 +17,25 @@ import sistema.Academia_api.frenquencia.FrequenciaResponse;
 import sistema.Academia_api.service.FrequenciaService;
 
 @RestController 
-@RequestMapping ("/frequencia")
+@RequestMapping ("/frequencias")
 @RequiredArgsConstructor 
 public class FrequenciaController {
     
     private final FrequenciaService frequenciaService;
     
-    @PostMapping ("/cadastrar")
+    @PostMapping
     public FrequenciaResponse cadastrar(@RequestBody @Valid FrequenciaRequest request) {
         return frequenciaService.cadastrar(request);
             }
 
 
-    @GetMapping ("/listar")
+    @GetMapping
     public Page<FrequenciaResponse> listar(@RequestParam(defaultValue = "0") int page,
             @RequestParam(defaultValue = "20") int size) {
                 return frequenciaService.listar(page, size);
             }
     
-     @GetMapping ("/buscar")
+     @GetMapping ("/buscar/{nome}")
      public Page<FrequenciaResponse> buscar(  @RequestParam String nome,
             @RequestParam(defaultValue = "0") int page,
             @RequestParam(defaultValue = "20") int size) {

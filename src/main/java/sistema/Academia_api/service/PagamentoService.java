@@ -6,6 +6,7 @@ import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import sistema.Academia_api.mensalidade.Mensalidade;
+import sistema.Academia_api.mensalidade.StatusMensalidade;
 import sistema.Academia_api.pagamentos.Pagamento;
 import sistema.Academia_api.pagamentos.PagamentoRequest;
 import sistema.Academia_api.pagamentos.PagamentoResponse;
@@ -82,6 +83,13 @@ public class PagamentoService {
         Pagamento pagamento = converterPagamento(request);
 
         Pagamento pagamentoSalvo = salvarPagamento(pagamento);
+
+        Mensalidade mensalidade = pagamentoSalvo.getMensalidade();
+
+        if (pagamentoSalvo.getValor().compareTo(mensalidade.getValor()) >= 0) {
+            mensalidade.setStatus(StatusMensalidade.PAGO);
+            mensalidadeRepository.save(mensalidade);
+        }
 
         return converterPagamentoResponse(pagamentoSalvo);
     }

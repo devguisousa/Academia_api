@@ -12,6 +12,6 @@ public class MatriculaRequest {
     private Long alunoId;
 
     @NotNull
-    private Long PlanoId;
+    private Long planoId;
     
 }

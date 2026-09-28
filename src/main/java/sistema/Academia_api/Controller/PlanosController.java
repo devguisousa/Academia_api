@@ -16,12 +16,12 @@ import java.util.List;
 public class PlanosController {
     private final PlanoService planoService;
 
-    @GetMapping("/listar")
+    @GetMapping
     public List<PlanoResponse> listar() {
         return planoService.listarPlanos();
     }
 
-    @PostMapping("/cadastro")
+    @PostMapping
     public PlanoResponse cadastrar(@RequestBody @Valid PlanoRequest request) {
         return planoService.cadastrarPlano(request);
     }

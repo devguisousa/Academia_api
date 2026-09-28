@@ -30,28 +30,28 @@ public class AlunoController {
         this.alunoService = alunoService;
     }
 
-    @PostMapping("/cadastrar")
+    @PostMapping
     public AlunoResponse cadastrarAluno(@RequestBody @Valid AlunoRequest request) {
         return alunoService.cadastrarAluno(request);
 
     }
 
-    @DeleteMapping("/deletar/{id}")
+    @DeleteMapping("/{id}")
     public void deletarAluno(@PathVariable Long id) {
         alunoService.deletarAluno(id);
     }
 
-    @PutMapping("/atualizar/{id}")
+    @PutMapping("/{id}")
     public AlunoResponse atualizarAluno(@PathVariable Long id, @RequestBody @Valid AlunoRequest request) {
         return alunoService.atualizarAluno(id, request);
     }
 
-    @PutMapping("/ativar/{id}")
+    @PutMapping("/{id}/ativar")
     public AlunoResponse ativarAluno(@PathVariable Long id) {
         return alunoService.ativarAluno(id);
     }
 
-    @PutMapping("/desativar/{id}")
+    @PutMapping("{id}/desativar")
     public AlunoResponse desativarAluno(@PathVariable Long id) {
         return alunoService.desativarAluno(id);
     }
@@ -65,7 +65,7 @@ public Page<AlunoResponse> buscarAlunoPorNome(
     return alunoService.buscar(nome, page, size);
 }
 
-    @GetMapping ("/listar")
+    @GetMapping 
     public Page<AlunoResponse> listarAlunos(@RequestParam(defaultValue = "0")int page,
                                             @RequestParam(defaultValue = "20") int size) {
         return alunoService.listarAlunos(page,size);

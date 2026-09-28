@@ -16,7 +16,5 @@ public class PlanoResponse {
     private Integer duracao;
 
     private Boolean ativo;
-
-    private  String fotoUrl;
     
 }
