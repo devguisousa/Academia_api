@@ -1,8 +1,11 @@
 package sistema.Academia_api.service;
 
-import java.util.List;
-import java.util.stream.Collectors;
+
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
+
 import sistema.Academia_api.Matricula.Matricula;
 import sistema.Academia_api.mensalidade.Mensalidade;
 import sistema.Academia_api.mensalidade.MensalidadeRequest;
@@ -64,12 +67,12 @@ public class MensalidadeService {
 
      }
 
-     public List<MensalidadeResponse> listar() {
-        return mensalidadeRepository.findAll()
-        .stream()
-        .map(this::converterResponse)
-        .collect(Collectors.toList());
+     public Page<MensalidadeResponse> listar(int page, int size) {
+         Pageable pageable = PageRequest.of(page, size);
 
+         Page<Mensalidade> mensalidades = mensalidadeRepository.findAll(pageable);
+
+         return mensalidades.map(this::converterResponse);
      }
 
      public MensalidadeResponse alterar(MensalidadeRequest request, Long id) {

@@ -3,7 +3,9 @@ package sistema.Academia_api.service;
 import java.time.LocalDate;
 import java.util.List;
 import java.util.stream.Collectors;
+
 import org.springframework.stereotype.Service;
+
 import sistema.Academia_api.Matricula.Matricula;
 import sistema.Academia_api.Matricula.MatriculaRequest;
 import sistema.Academia_api.Matricula.MatriculaResponse;
@@ -124,7 +126,7 @@ public MatriculaResponse ativarMatricula(Long id) {
 
 
 }
-
+ 
 public MatriculaResponse desativarMatricula(Long id) {
     Matricula matricula = matriculaRepository.findById(id)
     .orElseThrow(() -> new RuntimeException("Matricula não encontrada"));

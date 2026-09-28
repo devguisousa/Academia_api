@@ -3,9 +3,10 @@ import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
-import java.util.List;
-import java.util.stream.Collectors;
 
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile; 
 
@@ -74,17 +75,17 @@ return converterAlunoResponse(alunoSalvo);
 
 }
 
-    public List<AlunoResponse> buscar(String nome) {
+    public Page<AlunoResponse> buscar(String nome, int page, int size) {
 
-        List<Aluno> alunos = alunoRepository.findByNomeContainingIgnoreCase(nome);
+        Pageable pageable = PageRequest.of(page, size);
+
+        Page<Aluno> alunos = alunoRepository.findByNomeContainingIgnoreCase(nome, pageable);
 
         if (alunos.isEmpty()) {
             throw new AlunoException("Aluno não encontrado");
         }
 
-        return alunos.stream()
-                .map(this::converterAlunoResponse)
-                .toList();
+         return alunos.map(this::converterAlunoResponse);
     }
 
 public void deletarAluno(Long id) {
@@ -131,13 +132,17 @@ public AlunoResponse desativarAluno(Long id) {
 
 }
 
-public List<AlunoResponse> listarAlunos() {
-   
-    return alunoRepository.findAll()
-    .stream()
-    .map(this::converterAlunoResponse)
-    .collect(Collectors.toList());
+public Page<AlunoResponse> listarAlunos(int page, int size) {
+    Pageable pageable = PageRequest.of(page, size);
+
+    Page<Aluno> alunos = alunoRepository.findAll(pageable);
+
+    return alunos.map(this::converterAlunoResponse);
+
 }
+
+
+
 
 public AlunoResponse salvarFotos(Long id, MultipartFile foto) throws IOException {
 
