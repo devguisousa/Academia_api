@@ -8,7 +8,7 @@ import lombok.Setter;
 @Setter 
 public class MatriculaRequest {
 
-    @NotNull 
+    
     private Long alunoId;
 
     @NotNull

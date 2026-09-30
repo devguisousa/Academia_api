@@ -8,8 +8,9 @@ import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
-import org.springframework.web.multipart.MultipartFile; 
+import org.springframework.web.multipart.MultipartFile;
 
+import lombok.RequiredArgsConstructor;
 import sistema.Academia_api.alunos.Aluno;
 import sistema.Academia_api.alunos.AlunoRequest;
 import sistema.Academia_api.alunos.AlunoResponse;
@@ -17,20 +18,17 @@ import sistema.Academia_api.exception.AlunoException;
 import sistema.Academia_api.exception.CpfJaCadastrado;
 import sistema.Academia_api.exception.EmailJaCadastrado;
 import sistema.Academia_api.repository.AlunoRepository;
-@Service 
+
+@Service
+@RequiredArgsConstructor  
 public class AlunoService {
 
 private final AlunoRepository alunoRepository; 
-public AlunoService(AlunoRepository alunoRepository) {
-    this.alunoRepository = alunoRepository;
+
+
     
-    }
 
-    public Aluno salvarAluno(Aluno aluno) {
-        return alunoRepository.save(aluno);
-    }
-
-public Aluno converterAluno (AlunoRequest request) {
+private Aluno converterAluno (AlunoRequest request) {
     Aluno aluno = new Aluno();
     aluno.setNome(request.getNome());
     aluno.setEmail(request.getEmail());
@@ -43,7 +41,7 @@ public Aluno converterAluno (AlunoRequest request) {
     return aluno;
 }
 
-public AlunoResponse converterAlunoResponse (Aluno aluno) {
+private  AlunoResponse converterAlunoResponse (Aluno aluno) {
     AlunoResponse response = new AlunoResponse();
     response.setId(aluno.getId());
     response.setNome(aluno.getNome());
@@ -58,13 +56,17 @@ public AlunoResponse converterAlunoResponse (Aluno aluno) {
     return response;
 }
 
+private Aluno salvarAluno(Aluno aluno) {
+        return alunoRepository.save(aluno);
+    }
+
 
 public AlunoResponse cadastrarAluno(AlunoRequest request) {
 
 Aluno aluno = converterAluno(request);
 
 if (alunoRepository.existsByCpf(aluno.getCpf())) {
-    throw new CpfJaCadastrado("CPF já cadastrado");
+    throw new RuntimeException("CPF já cadastrado");
 } 
 if(alunoRepository.existsByEmail(aluno.getEmail())) {
     throw new EmailJaCadastrado("Email já cadastrado");

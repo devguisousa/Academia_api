@@ -12,8 +12,8 @@ import org.springframework.web.bind.annotation.RestController;
 
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
-import sistema.Academia_api.frenquencia.FrequenciaRequest;
-import sistema.Academia_api.frenquencia.FrequenciaResponse;
+import sistema.Academia_api.frequencia.FrequenciaRequest;
+import sistema.Academia_api.frequencia.FrequenciaResponse;
 import sistema.Academia_api.service.FrequenciaService;
 
 @RestController 
@@ -36,7 +36,7 @@ public class FrequenciaController {
             }
     
      @GetMapping ("/buscar/{nome}")
-     public Page<FrequenciaResponse> buscar(  @RequestParam String nome,
+     public Page<FrequenciaResponse> buscar(@PathVariable String nome,
             @RequestParam(defaultValue = "0") int page,
             @RequestParam(defaultValue = "20") int size) {
                 return frequenciaService.buscar(nome, page, size);

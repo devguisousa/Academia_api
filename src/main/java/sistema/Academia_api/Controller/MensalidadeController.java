@@ -31,17 +31,17 @@ public MensalidadeResponse buscar(@PathVariable Long id) {
 
 }
 
-@PostMapping("/cadastrar")
+@PostMapping
 public MensalidadeResponse cadastrar(@RequestBody @Valid MensalidadeRequest request) {
     return mensalidadeService.cadastrar(request);
 }
 
-@PutMapping ("/alterar/{id}")
+@PutMapping ("/{id}")
 public MensalidadeResponse alterar(@RequestBody @Valid MensalidadeRequest request, @PathVariable Long id ){
     return mensalidadeService.alterar(request, id);
 }
 
-@GetMapping("/listar")
+@GetMapping
 public Page<MensalidadeResponse> listar (@RequestParam(defaultValue = "0")int page, @RequestParam(defaultValue = "15")int size) {
     return mensalidadeService.listar(page, size);
 }    

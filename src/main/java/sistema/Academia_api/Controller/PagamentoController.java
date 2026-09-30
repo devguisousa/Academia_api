@@ -1,11 +1,9 @@
 package sistema.Academia_api.Controller;
 
 import org.springframework.data.domain.Page;
-import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
@@ -36,19 +34,8 @@ public class PagamentoController {
         return pagamentoService.cadastrar(request);
     }
 
-    @PutMapping("/alterar/{id}")
-    public PagamentoResponse alterar(@PathVariable Long id, @RequestBody @Valid PagamentoRequest request) {
-        return  pagamentoService.alterar(id, request);
-    }
-
     @GetMapping ("/buscar/{id}")
     public PagamentoResponse buscar(@PathVariable Long id) {
         return pagamentoService.buscar(id);
     }
-
-    @DeleteMapping ("/deletar/{id}")
-    public void deletar(@PathVariable Long id) {
-        pagamentoService.deletar(id);
-    }
- 
 }

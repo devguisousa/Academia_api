@@ -31,24 +31,18 @@ public class PlanosController {
         return planoService.buscarPlanoPorId(id);
     }
 
-    @PutMapping("/alterar/{id}")
+    @PutMapping("/{id}")
     public PlanoResponse alterar(@PathVariable Long id, @RequestBody @Valid PlanoRequest request) {
         return planoService.alterarPlano(id, request);
     }
 
-    @PutMapping("/desativar/{id}")
+    @PutMapping("/{id}/desativar")
     public PlanoResponse desativar(@PathVariable Long id) {
         return planoService.desativarPlano(id);
     }
 
-    @PutMapping("/ativar/{id}")
+    @PutMapping("/{id}/ativar")
     public PlanoResponse ativar(@PathVariable Long id) {
         return planoService.ativarPlano(id);
-    }
-
-    @DeleteMapping("/deletar/{id}")
-    public void deletar(@PathVariable Long id) {
-
-        planoService.deletarPlano(id);
     }
 }

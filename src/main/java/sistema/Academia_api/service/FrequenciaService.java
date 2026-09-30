@@ -13,9 +13,9 @@ import org.springframework.stereotype.Service;
 import lombok.RequiredArgsConstructor;
 import sistema.Academia_api.alunos.Aluno;
 import sistema.Academia_api.exception.AlunoException;
-import sistema.Academia_api.frenquencia.FrequenciaRequest;
-import sistema.Academia_api.frenquencia.Frequencia;
-import sistema.Academia_api.frenquencia.FrequenciaResponse;
+import sistema.Academia_api.frequencia.Frequencia;
+import sistema.Academia_api.frequencia.FrequenciaRequest;
+import sistema.Academia_api.frequencia.FrequenciaResponse;
 import sistema.Academia_api.repository.AlunoRepository;
 import sistema.Academia_api.repository.FrenquenciaRepository;
 

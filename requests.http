@@ -1,2 +1,0 @@
-GET http://localhost:8080/alunos?page=0&size=20
-Authorization: Basic YWRtaW46MTIzNA==

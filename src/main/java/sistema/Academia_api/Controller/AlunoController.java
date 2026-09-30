@@ -51,7 +51,7 @@ public class AlunoController {
         return alunoService.ativarAluno(id);
     }
 
-    @PutMapping("{id}/desativar")
+    @PutMapping("/{id}/desativar")
     public AlunoResponse desativarAluno(@PathVariable Long id) {
         return alunoService.desativarAluno(id);
     }

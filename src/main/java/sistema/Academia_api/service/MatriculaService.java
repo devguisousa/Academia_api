@@ -1,11 +1,14 @@
 package sistema.Academia_api.service;
 
 import java.time.LocalDate;
-import java.util.List;
-import java.util.stream.Collectors;
 
+
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 
+import lombok.RequiredArgsConstructor;
 import sistema.Academia_api.Matricula.Matricula;
 import sistema.Academia_api.Matricula.MatriculaRequest;
 import sistema.Academia_api.Matricula.MatriculaResponse;
@@ -16,25 +19,16 @@ import sistema.Academia_api.repository.MatriculaRepository;
 import sistema.Academia_api.repository.PlanoRepository;
 
 @Service 
+@RequiredArgsConstructor 
 public class MatriculaService {
 
     private final MatriculaRepository matriculaRepository;
     private final AlunoRepository alunoRepository;
     private final PlanoRepository planoRepository;
-    
-    
-    public MatriculaService(MatriculaRepository matriculaRepository, AlunoRepository alunoRepository,
-            PlanoRepository planoRepository) {
-        this.matriculaRepository = matriculaRepository;
-        this.alunoRepository = alunoRepository;
-        this.planoRepository = planoRepository;
-    }
 
-    public Matricula salvarMatricula(Matricula matricula) {
-        return matriculaRepository.save(matricula);
-    }
 
-    public Matricula converteMatricula(MatriculaRequest request) {
+
+    private Matricula converteMatricula(MatriculaRequest request) {
         
         Aluno aluno = alunoRepository.findById(request.getAlunoId())
         .orElseThrow(() -> new RuntimeException("aluno não encontrado"));
@@ -58,7 +52,7 @@ public class MatriculaService {
     }
 
 
-    public MatriculaResponse converterResponse(Matricula matricula) {
+    private MatriculaResponse converterResponse(Matricula matricula) {
 
         MatriculaResponse response = new MatriculaResponse();
 
@@ -76,6 +70,10 @@ public class MatriculaService {
 
         return response;
     }
+    
+    private  Matricula salvarMatricula(Matricula matricula) {
+        return matriculaRepository.save(matricula);
+    }
 
     public MatriculaResponse cadastrarMatricula(MatriculaRequest request) {
 
@@ -87,16 +85,24 @@ public class MatriculaService {
         throw new RuntimeException("Aluno já possui outra matrícula ativa");
     }
 
+    if (Boolean.FALSE.equals(matricula.getAluno().getAtivo())) {
+    throw new RuntimeException("Aluno desativado");
+}
+
+    if(Boolean.FALSE.equals(matricula.getPlano().getAtivo())) {
+        throw new RuntimeException("plano desativado");
+    }
+
+
     Matricula matriculaSalva = salvarMatricula(matricula);
 
     return converterResponse(matriculaSalva);
 }
 
-public List<MatriculaResponse> listar() {
-    return matriculaRepository.findAll()
-    .stream()
-    .map(this::converterResponse)
-    .collect(Collectors.toList());
+public Page<MatriculaResponse> listar(int page, int size) {
+    Pageable pageable = PageRequest.of(page, size);
+    Page<Matricula> matriculas = matriculaRepository.findAll(pageable);
+    return  matriculas.map(this::converterResponse);
 }
 
 public MatriculaResponse buscarMatricula(Long id){
@@ -118,6 +124,15 @@ public MatriculaResponse ativarMatricula(Long id) {
     if(matriculaRepository.existsByAluno_IdAndAtivoTrueAndIdNot(alunoId, id)) {
         throw new RuntimeException("Aluno já possui outra matrícula ativa");
     }
+
+    if (Boolean.FALSE.equals(matricula.getAluno().getAtivo())) {
+    throw new RuntimeException("Aluno desativado");
+    }
+
+    if (Boolean.FALSE.equals(matricula.getPlano().getAtivo())) {
+    throw new RuntimeException("Plano desativado");
+    }
+    
     matricula.setAtivo(true);
 
     Matricula matriculaSalva = salvarMatricula(matricula);
@@ -143,14 +158,16 @@ public MatriculaResponse alterarMatricula(Long id, MatriculaRequest request) {
     Matricula matricula = matriculaRepository.findById(id)
     .orElseThrow(() -> new RuntimeException("Matricula não encontrada"));
 
-    Aluno aluno = alunoRepository.findById(request.getAlunoId()).orElseThrow(()-> new RuntimeException("Aluno não encontrado"));
-
     Plano plano = planoRepository.findById(request.getPlanoId()).orElseThrow(() -> new RuntimeException("plano não encontrado"));
-
-    matricula.setAluno(aluno);
+   
+   
+    if (Boolean.FALSE.equals(plano.getAtivo())) {
+        throw new RuntimeException("Plano desativado");
+    }
+    
     matricula.setPlano(plano);
 
-    matricula.setDataFim(matricula.getDataInicio().plusMonths(plano.getDuracao()));
+    matricula.setDataFim(matricula.getDataInicio().plusDays(plano.getDuracao()));
 
     Matricula matriculaSalva = salvarMatricula(matricula);
 

@@ -7,6 +7,7 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Service;
 
+import lombok.RequiredArgsConstructor;
 import sistema.Academia_api.Matricula.Matricula;
 import sistema.Academia_api.mensalidade.Mensalidade;
 import sistema.Academia_api.mensalidade.MensalidadeRequest;
@@ -18,18 +19,16 @@ import sistema.Academia_api.repository.MensalidadeRepository;
 import java.time.LocalDate;
 import java.util.List;
 
+
 @Service 
+@RequiredArgsConstructor 
 public class MensalidadeService {
 
     private final MensalidadeRepository mensalidadeRepository;
     private final MatriculaRepository matriculaRepository;
 
-    public MensalidadeService(MensalidadeRepository mensalidadeRepository, MatriculaRepository matriculaRepository) {
-        this.mensalidadeRepository = mensalidadeRepository;
-        this.matriculaRepository = matriculaRepository;
-    }
-    public Mensalidade converterMensalidade(MensalidadeRequest request){
-        Matricula matricula = matriculaRepository.findById(request.getMatriculaId()).orElseThrow(() -> new RuntimeException("mantricula não encontrada"));
+    private  Mensalidade converterMensalidade(MensalidadeRequest request){
+        Matricula matricula = matriculaRepository.findById(request.getMatriculaId()).orElseThrow(() -> new RuntimeException("matricula não encontrada"));
     
         Mensalidade mensalidade = new Mensalidade();
 
@@ -43,7 +42,7 @@ public class MensalidadeService {
     
     }
 
-    public MensalidadeResponse converterResponse(Mensalidade mensalidade) {
+    private  MensalidadeResponse converterResponse(Mensalidade mensalidade) {
 
       MensalidadeResponse response = new MensalidadeResponse();
       
@@ -56,7 +55,7 @@ public class MensalidadeService {
         return response;
     }
 
-    public Mensalidade salvarMensalidade(Mensalidade mensalidade) {
+    private Mensalidade salvarMensalidade(Mensalidade mensalidade) {
         return mensalidadeRepository.save(mensalidade);
     }
 
@@ -64,6 +63,12 @@ public class MensalidadeService {
     public MensalidadeResponse cadastrar(MensalidadeRequest request) {
 
         Mensalidade mensalidade = converterMensalidade(request);
+
+        Matricula matricula = mensalidade.getMatricula();
+
+        if(Boolean.FALSE.equals(matricula.getAtivo())) {
+            throw new RuntimeException("matricula esta desativada");
+        }
 
         Mensalidade mensalidadeSalva = salvarMensalidade(mensalidade);
 
@@ -83,10 +88,14 @@ public class MensalidadeService {
         
         Mensalidade mensalidade = mensalidadeRepository.findById(id).orElseThrow(() -> new RuntimeException("Mensalidade não encontrada"));
 
-        Matricula matricula = matriculaRepository.findById(request.getMatriculaId()).orElseThrow(() -> new RuntimeException("mantricula não encontrada"));
+        if (mensalidade.getStatus() == StatusMensalidade.PAGO) {
+            throw new RuntimeException("mensalidade já esta paga"); 
+        }
 
-       
-        mensalidade.setMatricula(matricula);
+        if (mensalidade.getStatus() == StatusMensalidade.CANCELADO) {
+          throw new RuntimeException("mensalidade cancelada");  
+        }
+
         mensalidade.setValor(request.getValor());
         mensalidade.setDataVencimento(request.getDataVencimento());
 
@@ -105,7 +114,17 @@ public class MensalidadeService {
      public MensalidadeResponse cancelar(Long id)  {
          Mensalidade mensalidade = mensalidadeRepository.findById(id).orElseThrow(() -> new RuntimeException("Mensalidade não encontrada"));
 
+         if(mensalidade.getStatus() == StatusMensalidade.PAGO ) {
+            throw new RuntimeException("mensalidade já esta paga");
+         }
+
+         if (mensalidade.getStatus() == StatusMensalidade.CANCELADO) {
+            throw new RuntimeException("Mensalidade já está cancelada");
+         }
+
+
          mensalidade.setStatus(StatusMensalidade.CANCELADO);
+
 
          Mensalidade mensalidadeCancelada = salvarMensalidade(mensalidade);
 

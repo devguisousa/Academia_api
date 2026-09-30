@@ -1,4 +1,4 @@
-package sistema.Academia_api.frenquencia;
+package sistema.Academia_api.frequencia;
 
 import java.time.LocalDateTime;
 

@@ -5,6 +5,9 @@ import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
+
+import lombok.RequiredArgsConstructor;
 import sistema.Academia_api.mensalidade.Mensalidade;
 import sistema.Academia_api.mensalidade.StatusMensalidade;
 import sistema.Academia_api.pagamentos.Pagamento;
@@ -14,32 +17,29 @@ import sistema.Academia_api.repository.MensalidadeRepository;
 import sistema.Academia_api.repository.PagamentoRepository;
 
 @Service
+@RequiredArgsConstructor 
 public class PagamentoService {
 
     private final PagamentoRepository pagamentoRepository;
     private final MensalidadeRepository mensalidadeRepository;
 
-    public PagamentoService(PagamentoRepository pagamentoRepository, MensalidadeRepository mensalidadeRepository) {
-        this.pagamentoRepository = pagamentoRepository;
-        this.mensalidadeRepository = mensalidadeRepository;
-    }
 
     private Pagamento converterPagamento(PagamentoRequest request) {
 
         Mensalidade mensalidade = mensalidadeRepository.findById(request.getMensalidadeId())
                 .orElseThrow(() -> new RuntimeException("mensalidade não existe"));
 
-        Pagamento p = new Pagamento();
+        Pagamento pagamento = new Pagamento();
 
-        p.setMensalidade(mensalidade);
+        pagamento.setMensalidade(mensalidade);
 
-        p.setValor(request.getValor());
+        pagamento.setValor(request.getValor());
 
-        p.setFormaDePagamento(request.getFormaDePagamento());
+        pagamento.setFormaDePagamento(request.getFormaDePagamento());
 
-        p.setDataPagamento(LocalDate.now());
+        pagamento.setDataPagamento(LocalDate.now());
 
-        return p;
+        return pagamento;
 
     }
 
@@ -79,45 +79,32 @@ public class PagamentoService {
 
     }
 
+    @Transactional 
     public PagamentoResponse cadastrar(PagamentoRequest request) {
+        
         Pagamento pagamento = converterPagamento(request);
 
-        Pagamento pagamentoSalvo = salvarPagamento(pagamento);
+        Mensalidade mensalidade = pagamento.getMensalidade();
 
-        Mensalidade mensalidade = pagamentoSalvo.getMensalidade();
+        if (mensalidade.getStatus() == StatusMensalidade.CANCELADO) {
+        throw new RuntimeException("Mensalidade está cancelada");
+        }
 
-        if (pagamentoSalvo.getValor().compareTo(mensalidade.getValor()) >= 0) {
+        if (mensalidade.getStatus() == StatusMensalidade.PAGO) {
+        throw new RuntimeException("Mensalidade já está paga");
+        }
+        
+        if (pagamento.getValor().compareTo(mensalidade.getValor()) != 0)  {
+            throw new RuntimeException("Valor do pagamento deve ser igual ao valor da mensalidade");
+        }
+        
+            Pagamento pagamentoSalvo = salvarPagamento(pagamento);
+            
             mensalidade.setStatus(StatusMensalidade.PAGO);
             mensalidadeRepository.save(mensalidade);
-        }
-
+        
+        
         return converterPagamentoResponse(pagamentoSalvo);
-    }
-
-    public PagamentoResponse alterar(Long id, PagamentoRequest request) {
-
-        Mensalidade mensalidade = mensalidadeRepository.findById(request.getMensalidadeId())
-                .orElseThrow(() -> new RuntimeException("mensalidade não existe"));
-        Pagamento pagamento = pagamentoRepository.findById(id)
-                .orElseThrow(() -> new RuntimeException("pagamento não encontrado"));
-
-        pagamento.setMensalidade(mensalidade);
-        pagamento.setFormaDePagamento(request.getFormaDePagamento());
-        pagamento.setValor(request.getValor());
-
-        Pagamento pagamentoSalvo = salvarPagamento(pagamento);
-
-        return converterPagamentoResponse(pagamentoSalvo);
-    }
-
-    public void deletar(Long id) {
-
-        if(!pagamentoRepository.existsById(id)) {
-            throw new RuntimeException("pagamento não existe");
-        }
-
-        pagamentoRepository.deleteById(id);
-
     }
 
 }
