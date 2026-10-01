@@ -5,7 +5,6 @@ import java.time.LocalDate;
 import java.time.YearMonth;
 import java.util.List;
 
-import org.apache.catalina.connector.Request;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
@@ -14,7 +13,6 @@ import lombok.RequiredArgsConstructor;
 import sistema.Academia_api.lancamentos.Lancamento;
 import sistema.Academia_api.lancamentos.LancamentoRequest;
 import sistema.Academia_api.lancamentos.LancamentoResponse;
-import sistema.Academia_api.lancamentos.ResumoFinanceiro;
 import sistema.Academia_api.lancamentos.ResumoFinanceiroResponse;
 import sistema.Academia_api.lancamentos.TipoLancamento;
 import sistema.Academia_api.repository.LancamentoRepository;
@@ -149,7 +147,22 @@ public ResumoFinanceiroResponse resumoPorAno (int ano) {
     return resumoPorPeriodo(inicio, fim);
 }
 
+public Page<LancamentoResponse> listarPorPeriodo(
+        LocalDate inicio,
+        LocalDate fim,
+        int page,
+        int size) {
 
+    Pageable pageable = PageRequest.of(page, size);
 
-    
+    Page<Lancamento> lancamentos =
+            lancamentoRepository.findByDataMensalBetween(
+                    inicio,
+                    fim,
+                    pageable
+            );
+
+    return lancamentos.map(this::converterLancamentoResponse);
+}
+ 
 }
