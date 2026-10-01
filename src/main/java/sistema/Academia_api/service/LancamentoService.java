@@ -1,5 +1,11 @@
 package sistema.Academia_api.service;
 
+import java.math.BigDecimal;
+import java.time.LocalDate;
+import java.time.YearMonth;
+import java.util.List;
+
+import org.apache.catalina.connector.Request;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
@@ -8,6 +14,9 @@ import lombok.RequiredArgsConstructor;
 import sistema.Academia_api.lancamentos.Lancamento;
 import sistema.Academia_api.lancamentos.LancamentoRequest;
 import sistema.Academia_api.lancamentos.LancamentoResponse;
+import sistema.Academia_api.lancamentos.ResumoFinanceiro;
+import sistema.Academia_api.lancamentos.ResumoFinanceiroResponse;
+import sistema.Academia_api.lancamentos.TipoLancamento;
 import sistema.Academia_api.repository.LancamentoRepository;
 
 @Service
@@ -92,6 +101,54 @@ public void deletar(Long id){
      
      lancamentoRepository.delete(lancamento);
 }
+
+public ResumoFinanceiroResponse resumoPorPeriodo(LocalDate inicio, LocalDate fim) {
+    
+    List<Lancamento> lancamentos = lancamentoRepository.findByDataMensalBetween(inicio, fim);
+
+    BigDecimal totalReceita = BigDecimal.ZERO;
+    BigDecimal totalDespesa = BigDecimal.ZERO;
+
+    for(Lancamento lancamento : lancamentos) {
+
+        if(lancamento.getTipo() == TipoLancamento.RECEITA) {
+            totalReceita = totalReceita.add(lancamento.getValor());
+        }
+
+        if(lancamento.getTipo() == TipoLancamento.DESPESA) {
+            totalDespesa = totalDespesa.add(lancamento.getValor());
+        }
+    }
+
+    BigDecimal saldo = totalReceita.subtract(totalDespesa);
+
+    ResumoFinanceiroResponse response = new ResumoFinanceiroResponse();
+
+    response.setTotalReceitas(totalReceita);
+    response.setTotalDespesas(totalDespesa);
+    response.setSaldo(saldo);
+
+    return response;
+}
+
+
+public ResumoFinanceiroResponse resumoPorMes(int ano, int mes) {
+    YearMonth anoMes = YearMonth.of(ano, mes);
+
+    LocalDate inicio = anoMes.atDay(1);
+    LocalDate fim = anoMes.atEndOfMonth();
+
+    return resumoPorPeriodo(inicio, fim);
+}
+
+public ResumoFinanceiroResponse resumoPorAno (int ano) {
+
+    LocalDate inicio = LocalDate.of(ano, 1,1);
+    LocalDate fim = LocalDate.of(ano, 12, 31);
+
+    return resumoPorPeriodo(inicio, fim);
+}
+
 
 
     
