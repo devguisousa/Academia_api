@@ -12,6 +12,7 @@ import com.auth0.jwt.algorithms.Algorithm;
 
 import sistema.Academia_api.user.User;
 
+import static org.springframework.security.config.Elements.JWT;
 
 
 @Service
