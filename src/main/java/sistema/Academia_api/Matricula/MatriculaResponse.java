@@ -17,6 +17,8 @@ public class MatriculaResponse {
 
     private Long planoId;
 
+    private String numeroMatricula;
+
     private String nomePlano;
 
     private LocalDate dataInicio;

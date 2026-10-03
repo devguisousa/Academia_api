@@ -33,6 +33,9 @@ public class Matricula {
     @JoinColumn(name = "plano_id", nullable = false)
     private Plano plano;
 
+    @Column (nullable = false, unique = true)
+    private String numeroMatricula;
+
     @Column(nullable = false)
     private LocalDate dataInicio;
 

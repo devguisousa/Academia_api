@@ -9,6 +9,7 @@ public interface MatriculaRepository extends JpaRepository <Matricula, Long> {
 
     boolean existsByAluno_IdAndAtivoTrueAndIdNot(Long alunoId, Long id);
     boolean existsByAluno_IdAndAtivoTrue(Long alunoId);
+    boolean existsByNumeroMatricula(String numero);
     
 
     

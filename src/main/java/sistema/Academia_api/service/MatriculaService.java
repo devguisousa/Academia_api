@@ -1,7 +1,7 @@
 package sistema.Academia_api.service;
 
 import java.time.LocalDate;
-
+import java.util.concurrent.ThreadLocalRandom;
 
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
@@ -25,6 +25,9 @@ public class MatriculaService {
     private final MatriculaRepository matriculaRepository;
     private final AlunoRepository alunoRepository;
     private final PlanoRepository planoRepository;
+
+
+
 
 
 
@@ -52,6 +55,19 @@ public class MatriculaService {
     }
 
 
+    private String gerarNumeroMatricula() {
+
+        String numero;
+
+        do {
+         numero = String.valueOf(ThreadLocalRandom.current().nextInt(10_000_000, 1000_000_00));
+
+        } while(matriculaRepository.existsByNumeroMatricula(numero));
+            
+        return numero;
+    }
+
+
     private MatriculaResponse converterResponse(Matricula matricula) {
 
         MatriculaResponse response = new MatriculaResponse();
@@ -63,6 +79,7 @@ public class MatriculaService {
 
         response.setNomeAluno(matricula.getAluno().getNome());
         response.setNomePlano(matricula.getPlano().getNome());
+        response.setNumeroMatricula(gerarNumeroMatricula());
 
         response.setDataInicio(matricula.getDataInicio());
         response.setDataFim(matricula.getDataFim());
