@@ -20,21 +20,43 @@ public class JwtService {
         this.algorithm = Algorithm.HMAC256(secret);
     }
 
-    public String gerarToken(Usuario user) {
+    public String gerarAcessToken(Usuario user) {
 
         Instant agora = Instant.now();
 
         return JWT.create()
         .withSubject(user.getEmail())
         .withClaim("role", user.getRole().name())
+        .withClaim("tipo", "ACCESS")
         .withIssuedAt(Date.from(agora))
-        .withExpiresAt(Date.from(agora.plus(30,ChronoUnit.DAYS)))
+        .withExpiresAt(Date.from(agora.plus(30,ChronoUnit.MINUTES)))
         .sign(algorithm);
         
     }
 
-    public String validarToken(String token) {
+    public String gerarRefreshToken(Usuario user) {
+        Instant agora = Instant.now();
+
+        return  JWT.create()
+        .withSubject(user.getEmail())
+        .withClaim("tipo", "REFRESH")
+        .withIssuedAt(Date.from(agora))
+        .withExpiresAt(Date.from(agora.plus(20,ChronoUnit.DAYS)))
+        .sign(algorithm);
+
+    }
+
+    public String validarAcessToken(String token) {
         return JWT.require(algorithm)
+        .withClaim("tipo", "ACCESS")
+        .build()
+        .verify(token)
+        .getSubject();
+    }
+
+    public String validarRefreshToken(String token) {
+        return JWT.require(algorithm)
+        .withClaim("tipo", "REFRESH")
         .build()
         .verify(token)
         .getSubject();

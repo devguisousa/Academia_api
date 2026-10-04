@@ -9,6 +9,7 @@ import sistema.Academia_api.repository.UsuarioRepository;
 import sistema.Academia_api.user.Usuario;
 import sistema.Academia_api.user.login.LoginRequest;
 import sistema.Academia_api.user.login.LoginResponse;
+import sistema.Academia_api.user.login.RefreshRequest;
 
 @Service 
 @RequiredArgsConstructor 
@@ -29,15 +30,31 @@ public class AuthService {
                 
             }
 
-            String token = jwtService.gerarToken(user);
+            String token = jwtService.gerarAcessToken(user);
 
             LoginResponse response = new LoginResponse();
 
-            response.setToken(token);
+            response.setAcessToken(token);
             response.setEmail(user.getEmail());
 
             return response;
             
      }
 
+ public  LoginResponse refresh(RefreshRequest request) {
+    String email = jwtService.validarRefreshToken(request.getRefreshToken());
+
+        Usuario user = userRepository.findByEmail(email).orElseThrow
+        (() -> new RuntimeException("Email ou senha inválidos"));
+
+        String novoAcess = jwtService.gerarAcessToken(user);
+
+        LoginResponse response = new  LoginResponse();
+
+        response.setAcessToken(novoAcess);
+        response.setRefreshToken(request.getRefreshToken());
+        response.setEmail(user.getEmail());
+
+        return response;
+ }
 } 

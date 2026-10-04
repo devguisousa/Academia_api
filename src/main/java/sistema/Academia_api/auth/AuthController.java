@@ -10,6 +10,7 @@ import org.springframework.web.bind.annotation.RestController;
 import jakarta.validation.Valid;
 import sistema.Academia_api.user.login.LoginRequest;
 import sistema.Academia_api.user.login.LoginResponse;
+import sistema.Academia_api.user.login.RefreshRequest;
 
 @RestController 
 @RequestMapping("/auth")
@@ -20,6 +21,11 @@ public class AuthController {
     @PostMapping("/login")
     public LoginResponse login(@RequestBody @Valid LoginRequest request) {
         return authService.login(request);
+    }
+
+    @PostMapping ("/refresh")
+    public LoginResponse refresh(@RequestBody @Valid RefreshRequest request) {
+        return authService.refresh(request);
     }
   
 }
