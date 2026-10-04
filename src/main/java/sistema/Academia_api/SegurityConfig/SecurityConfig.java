@@ -3,24 +3,34 @@ package sistema.Academia_api.SegurityConfig;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.http.HttpMethod;
-import org.springframework.security.config.Customizer;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
+import org.springframework.security.config.http.SessionCreationPolicy;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.security.web.SecurityFilterChain;
+import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter;
+
+import lombok.RequiredArgsConstructor;
+import sistema.Academia_api.ServiceSegurity.JwtAuthenticationFilter;
 
 @Configuration
+@RequiredArgsConstructor 
 public class SecurityConfig {
 
+    private final JwtAuthenticationFilter jwtAuthenticationFilter;
     @Bean
     public SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
 
         http
                 .csrf(csrf -> csrf.disable())
 
+                .sessionManagement(session -> session.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
+
                 .authorizeHttpRequests(auth -> auth
                     
                     .requestMatchers("/auth/login").permitAll()
+
+                    .requestMatchers(HttpMethod.POST, "/usuarios").hasRole("ADMIN")
 
                     .requestMatchers(HttpMethod.GET, "/alunos")
                     .hasAnyRole("ADMIN", "RECEPCAO")
@@ -28,13 +38,13 @@ public class SecurityConfig {
                     .requestMatchers(HttpMethod.GET, "/alunos/buscar/**")
                     .hasAnyRole("ADMIN", "RECEPCAO")
 
-                    .requestMatchers(HttpMethod.POST, "/alunos/cadastrar")
+                    .requestMatchers(HttpMethod.POST, "/alunos")
                     .hasAnyRole("ADMIN", "RECEPCAO")
 
                     .requestMatchers(HttpMethod.POST, "/alunos/*/foto")
                     .hasAnyRole("ADMIN", "RECEPCAO")
 
-                    .requestMatchers(HttpMethod.PUT, "/alunos/alterar/*")
+                    .requestMatchers(HttpMethod.PUT, "/alunos/*")
                     .hasAnyRole("ADMIN", "RECEPCAO")
 
                     .requestMatchers(HttpMethod.PUT, "/alunos/*/ativar")
@@ -43,7 +53,7 @@ public class SecurityConfig {
                     .requestMatchers(HttpMethod.PUT, "/alunos/*/desativar")
                     .hasRole("ADMIN")
 
-                    .requestMatchers(HttpMethod.DELETE, "/alunos/deletar/*")
+                    .requestMatchers(HttpMethod.DELETE, "/alunos/*")
                     .hasRole("ADMIN")
 
                   
@@ -102,7 +112,7 @@ public class SecurityConfig {
 
                     .anyRequest().authenticated())
 
-                .httpBasic(Customizer.withDefaults());
+                .addFilterBefore(jwtAuthenticationFilter, UsernamePasswordAuthenticationFilter.class);
 
         return http.build();
     }

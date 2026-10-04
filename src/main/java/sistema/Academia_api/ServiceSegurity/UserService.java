@@ -4,19 +4,19 @@ import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
 import lombok.RequiredArgsConstructor;
-import sistema.Academia_api.repository.UserRepository;
-import sistema.Academia_api.user.User;
-import sistema.Academia_api.user.UserRequest;
-import sistema.Academia_api.user.UserResponse;
+import sistema.Academia_api.repository.UsuarioRepository;
+import sistema.Academia_api.user.Usuario;
+import sistema.Academia_api.user.UsuarioRequest;
+import sistema.Academia_api.user.UsuarioResponse;
 
 @Service 
 @RequiredArgsConstructor 
 public class UserService {
-    private final UserRepository userRepository;
+    private final UsuarioRepository userRepository;
     private final PasswordEncoder passwordEncoder;
 
-    private User converterUser (UserRequest request) {
-        User user = new User();
+    private Usuario converterUser (UsuarioRequest request) {
+        Usuario user = new Usuario();
 
         user.setEmail(request.getEmail());
         user.setNome(request.getNome());
@@ -26,8 +26,8 @@ public class UserService {
         return user;
     }
 
-    private UserResponse converterUserResponse(User user) {
-        UserResponse userResponse = new UserResponse();
+    private UsuarioResponse converterUserResponse(Usuario user) {
+        UsuarioResponse userResponse = new UsuarioResponse();
 
         userResponse.setId(user.getId());
         userResponse.setNome(user.getNome());
@@ -37,19 +37,19 @@ public class UserService {
         return userResponse;
     }
 
-    private User salvaUser (User user) {
+    private Usuario salvaUser (Usuario user) {
         return userRepository.save(user);
     }
 
-    public  UserResponse cadastrar (UserRequest request) {
+    public  UsuarioResponse cadastrar (UsuarioRequest request) {
         
         if (userRepository.existsByEmail(request.getEmail())) {
             throw new RuntimeException("email ja cadastrado");
             
         }
         
-        User user = converterUser(request);
-        User userSalvo = salvaUser(user);
+        Usuario user = converterUser(request);
+        Usuario userSalvo = salvaUser(user);
         return converterUserResponse(userSalvo);
     }
     

@@ -10,10 +10,7 @@ import org.springframework.stereotype.Service;
 import com.auth0.jwt.JWT;
 import com.auth0.jwt.algorithms.Algorithm;
 
-import sistema.Academia_api.user.User;
-
-import static org.springframework.security.config.Elements.JWT;
-
+import sistema.Academia_api.user.Usuario;
 
 @Service
 public class JwtService {
@@ -23,7 +20,7 @@ public class JwtService {
         this.algorithm = Algorithm.HMAC256(secret);
     }
 
-    public String gerarToken(User user) {
+    public String gerarToken(Usuario user) {
 
         Instant agora = Instant.now();
 
@@ -34,5 +31,12 @@ public class JwtService {
         .withExpiresAt(Date.from(agora.plus(30,ChronoUnit.DAYS)))
         .sign(algorithm);
         
+    }
+
+    public String validarToken(String token) {
+        return JWT.require(algorithm)
+        .build()
+        .verify(token)
+        .getSubject();
     }
 }

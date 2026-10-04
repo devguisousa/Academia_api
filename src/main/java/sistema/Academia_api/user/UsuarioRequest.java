@@ -9,7 +9,7 @@ import lombok.Setter;
 
 @Getter 
 @Setter 
-public class UserRequest {
+public class UsuarioRequest {
 
     @NotBlank 
     private String nome;
