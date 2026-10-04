@@ -3,6 +3,9 @@ import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
+import java.time.LocalDate;
+import java.time.LocalDateTime;
+import java.time.temporal.ChronoUnit;
 
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
@@ -11,19 +14,26 @@ import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
 
 import lombok.RequiredArgsConstructor;
+import sistema.Academia_api.Matricula.Matricula;
 import sistema.Academia_api.alunos.Aluno;
 import sistema.Academia_api.alunos.AlunoRequest;
 import sistema.Academia_api.alunos.AlunoResponse;
+import sistema.Academia_api.alunos.PerfilAlunoResponse;
 import sistema.Academia_api.exception.AlunoException;
 import sistema.Academia_api.exception.CpfJaCadastrado;
 import sistema.Academia_api.exception.EmailJaCadastrado;
+import sistema.Academia_api.frequencia.Frequencia;
 import sistema.Academia_api.repository.AlunoRepository;
+import sistema.Academia_api.repository.FrenquenciaRepository;
+import sistema.Academia_api.repository.MatriculaRepository;
 
 @Service
 @RequiredArgsConstructor  
 public class AlunoService {
 
 private final AlunoRepository alunoRepository; 
+private final MatriculaRepository matriculaRepository;
+private  final FrenquenciaRepository frequenciaRepository;
 
 
     
@@ -159,5 +169,55 @@ public AlunoResponse salvarFotos(Long id, MultipartFile foto) throws IOException
     aluno.setFotoURL("/uploads/alunos/" + fotosAlunos);
     Aluno alunoSalvo = salvarAluno(aluno);
     return converterAlunoResponse(alunoSalvo);
+}
+
+public PerfilAlunoResponse perfil(Long id) {
+
+    Aluno aluno = alunoRepository.findById(id)
+            .orElseThrow(() ->
+                    new RuntimeException("Aluno não encontrado"));
+
+    PerfilAlunoResponse response = new PerfilAlunoResponse();
+
+    response.setId(aluno.getId());
+    response.setNome(aluno.getNome());
+    response.setEmail(aluno.getEmail());
+    response.setCpf(aluno.getCpf());
+    response.setTelefone(aluno.getTelefone());
+    response.setAtivo(aluno.getAtivo());
+    response.setFotoURL(aluno.getFotoURL());
+
+    Matricula matricula = matriculaRepository.findByAluno_IdAndAtivoTrue(id).orElse(null);
+
+    if (matricula != null) {
+
+        response.setPlano(matricula.getPlano().getNome());
+        response.setInicioMatricula(matricula.getDataInicio());
+        response.setFimMatricula(matricula.getDataFim());
+        response.setMatriculaAtiva(matricula.getAtivo());
+
+
+}
+
+LocalDateTime hoje = LocalDate.now().atStartOfDay();
+LocalDateTime fimHoje = LocalDate.now().atTime(23,59,59);
+
+boolean compareceuHoje = frequenciaRepository.existsByAluno_IdAndDataEntradaBetween(id, hoje, fimHoje);
+
+response.setCompareceuHoje(compareceuHoje);
+
+Frequencia ultimaFrequencia = frequenciaRepository.findTopByAluno_IdOrderByDataEntradaDesc(id).orElse(null);
+
+if (ultimaFrequencia != null) {
+    response.setUltimaEntrada(ultimaFrequencia.getDataEntrada());
+
+    long dias = ChronoUnit.DAYS.between(ultimaFrequencia.getDataEntrada().toLocalDate(), LocalDate.now());
+
+    response.setDiasSemComparecer(dias);
+    
+}
+
+return response;
+
 }
 }
