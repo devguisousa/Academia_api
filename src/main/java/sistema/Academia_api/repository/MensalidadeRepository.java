@@ -14,5 +14,7 @@ public interface MensalidadeRepository extends JpaRepository<Mensalidade, Long> 
             StatusMensalidade status,
             LocalDate data
     );
+
+    long countByStatus(StatusMensalidade status);
     
 }

@@ -1,12 +1,15 @@
 package sistema.Academia_api.service;
 import java.io.IOException;
+import java.math.BigDecimal;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
+import java.time.LocalTime;
 import java.time.temporal.ChronoUnit;
 
+import org.hibernate.event.spi.LockEventListener;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
@@ -18,14 +21,21 @@ import sistema.Academia_api.Matricula.Matricula;
 import sistema.Academia_api.alunos.Aluno;
 import sistema.Academia_api.alunos.AlunoRequest;
 import sistema.Academia_api.alunos.AlunoResponse;
+import sistema.Academia_api.alunos.DashboardResponse;
 import sistema.Academia_api.alunos.PerfilAlunoResponse;
 import sistema.Academia_api.exception.AlunoException;
 import sistema.Academia_api.exception.CpfJaCadastrado;
 import sistema.Academia_api.exception.EmailJaCadastrado;
 import sistema.Academia_api.frequencia.Frequencia;
+import sistema.Academia_api.lancamentos.LancamentoResponse;
+import sistema.Academia_api.lancamentos.ResumoFinanceiroResponse;
+import sistema.Academia_api.lancamentos.TipoLancamento;
+import sistema.Academia_api.mensalidade.StatusMensalidade;
 import sistema.Academia_api.repository.AlunoRepository;
 import sistema.Academia_api.repository.FrenquenciaRepository;
+import sistema.Academia_api.repository.LancamentoRepository;
 import sistema.Academia_api.repository.MatriculaRepository;
+import sistema.Academia_api.repository.MensalidadeRepository;
 
 @Service
 @RequiredArgsConstructor  
@@ -33,7 +43,10 @@ public class AlunoService {
 
 private final AlunoRepository alunoRepository; 
 private final MatriculaRepository matriculaRepository;
-private  final FrenquenciaRepository frequenciaRepository;
+private final FrenquenciaRepository frequenciaRepository;
+private final MensalidadeRepository mensalidadeRepository;
+private final LancamentoService lancamentoService;
+private final LancamentoRepository lancamentoRepository;
 
 
     
@@ -220,4 +233,39 @@ if (ultimaFrequencia != null) {
 return response;
 
 }
+
+public DashboardResponse dashboar(int ano, int mes) {
+    DashboardResponse dashboar = new DashboardResponse();
+
+    long alunosAtivos = alunoRepository.countByAtivoTrue();
+
+    long mensalidadesPagas = mensalidadeRepository.countByStatus(StatusMensalidade.PAGO);
+    long mensalidadesPendentes = mensalidadeRepository.countByStatus(StatusMensalidade.PENDENTE);
+    long mensalidadesAtrasadas = mensalidadeRepository.countByStatus(StatusMensalidade.ATRASADO);
+
+    ResumoFinanceiroResponse resumo = lancamentoService.resumoPorMes(ano, mes);
+
+    
+
+    BigDecimal totalReceita = resumo.getTotalReceitas();
+    BigDecimal totalDespesas = resumo.getTotalDespesas();
+    BigDecimal saldo = resumo.getSaldo();
+    
+    LocalDateTime inicioHoje = LocalDate.now().atStartOfDay();
+    LocalDateTime fimHoje = LocalDate.now().atTime(LocalTime.MAX);
+
+    long alunosComparaceram = frequenciaRepository.contarAlunosPorPeriodo(inicioHoje, fimHoje);
+
+    dashboar.setAlunosAtivos(alunosAtivos);
+    dashboar.setAlunosHoje(alunosComparaceram);
+    dashboar.setMensalidadesPagas(mensalidadesPagas);
+    dashboar.setMensalidadesPendentes(mensalidadesPendentes);
+    dashboar.setMensalidadesAtrasadas(mensalidadesAtrasadas);
+    dashboar.setTotalDespesas(totalDespesas);
+    dashboar.setTotalReceitas(totalReceita);
+    dashboar.setSaldo(saldo);
+
+    return dashboar;
+}
+
 }
