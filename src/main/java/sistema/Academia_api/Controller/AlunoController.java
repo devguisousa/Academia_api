@@ -17,6 +17,8 @@ import org.springframework.web.multipart.MultipartFile;
 import jakarta.validation.Valid;
 import sistema.Academia_api.alunos.AlunoRequest;
 import sistema.Academia_api.alunos.AlunoResponse;
+import sistema.Academia_api.alunos.DashboardResponse;
+import sistema.Academia_api.alunos.PerfilAlunoResponse;
 import sistema.Academia_api.service.AlunoService;
 
 
@@ -80,4 +82,17 @@ public Page<AlunoResponse> buscarAlunoPorNome(
     }
 
 
+    @GetMapping ("/perfil/{id}") 
+        public PerfilAlunoResponse perfil(@PathVariable Long id) {
+            return alunoService.perfil(id);
+        }
+
+    
+
+    @GetMapping ("/dashboard/{ano}/{mes}") 
+        public DashboardResponse dashboard (@PathVariable int mes, @PathVariable int ano) {
+            return alunoService.dashboar(ano, mes);
+
+        }
+    
 }

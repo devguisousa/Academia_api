@@ -8,6 +8,7 @@ import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.Id;
 import jakarta.persistence.JoinColumn;
 import jakarta.persistence.ManyToOne;
+import jakarta.persistence.Table;
 import jakarta.persistence.GenerationType;
 import lombok.Getter;
 import lombok.Setter;
@@ -16,6 +17,7 @@ import sistema.Academia_api.alunos.Aluno;
 @Entity 
 @Getter 
 @Setter 
+@Table(name = "frequencias")
 public class Frequencia {
 
     @Id 

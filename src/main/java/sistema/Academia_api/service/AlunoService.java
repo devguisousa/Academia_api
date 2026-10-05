@@ -8,14 +8,11 @@ import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.time.LocalTime;
 import java.time.temporal.ChronoUnit;
-
-import org.hibernate.event.spi.LockEventListener;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
-
 import lombok.RequiredArgsConstructor;
 import sistema.Academia_api.Matricula.Matricula;
 import sistema.Academia_api.alunos.Aluno;
@@ -27,13 +24,10 @@ import sistema.Academia_api.exception.AlunoException;
 import sistema.Academia_api.exception.CpfJaCadastrado;
 import sistema.Academia_api.exception.EmailJaCadastrado;
 import sistema.Academia_api.frequencia.Frequencia;
-import sistema.Academia_api.lancamentos.LancamentoResponse;
 import sistema.Academia_api.lancamentos.ResumoFinanceiroResponse;
-import sistema.Academia_api.lancamentos.TipoLancamento;
 import sistema.Academia_api.mensalidade.StatusMensalidade;
 import sistema.Academia_api.repository.AlunoRepository;
 import sistema.Academia_api.repository.FrenquenciaRepository;
-import sistema.Academia_api.repository.LancamentoRepository;
 import sistema.Academia_api.repository.MatriculaRepository;
 import sistema.Academia_api.repository.MensalidadeRepository;
 
@@ -46,7 +40,7 @@ private final MatriculaRepository matriculaRepository;
 private final FrenquenciaRepository frequenciaRepository;
 private final MensalidadeRepository mensalidadeRepository;
 private final LancamentoService lancamentoService;
-private final LancamentoRepository lancamentoRepository;
+
 
 
     

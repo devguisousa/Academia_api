@@ -56,6 +56,12 @@ public class SecurityConfig {
                     .requestMatchers(HttpMethod.DELETE, "/alunos/*")
                     .hasRole("ADMIN")
 
+                    .requestMatchers(HttpMethod.GET, "/alunos/perfil/*")
+                    .hasAnyRole("ADMIN", "RECEPCAO")
+                    
+                    .requestMatchers(HttpMethod.GET, "/alunos/dashboard/*/*")
+                    .hasRole("ADMIN")
+
                   
 
                     .requestMatchers(HttpMethod.GET, "/matriculas/**")
