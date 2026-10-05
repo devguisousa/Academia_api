@@ -30,7 +30,7 @@ public class SecurityConfig {
                     
                     .requestMatchers("/auth/**").permitAll()
 
-                    .requestMatchers(HttpMethod.POST, "/usuarios").hasRole("ADMIN")
+                    .requestMatchers(HttpMethod.POST, "/usuarios").permitAll()
 
                     .requestMatchers(HttpMethod.GET, "/alunos")
                     .hasAnyRole("ADMIN", "RECEPCAO")
