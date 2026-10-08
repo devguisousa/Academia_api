@@ -84,7 +84,7 @@ public class MatriculaService {
 
         response.setNomeAluno(matricula.getAluno().getNome());
         response.setNomePlano(matricula.getPlano().getNome());
-        response.setNumeroMatricula(gerarNumeroMatricula());
+        response.setNumeroMatricula(matricula.getNumeroMatricula());
 
         response.setDataInicio(matricula.getDataInicio());
         response.setDataFim(matricula.getDataFim());
@@ -117,6 +117,8 @@ public class MatriculaService {
         log.warn("Operação cadastrarMatricula bloqueada: plano desativado alunoId={} planoId={}", matricula.getAluno().getId(), matricula.getPlano().getId());
         throw new RegraNegocioException("plano desativado");
     }
+
+    matricula.setNumeroMatricula(gerarNumeroMatricula());
 
 
     Matricula matriculaSalva = salvarMatricula(matricula);
