@@ -4,6 +4,7 @@ import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import sistema.Academia_api.repository.UsuarioRepository;
 import sistema.Academia_api.user.Usuario;
 import sistema.Academia_api.user.UsuarioRequest;
@@ -11,6 +12,7 @@ import sistema.Academia_api.user.UsuarioResponse;
 
 @Service 
 @RequiredArgsConstructor 
+@Slf4j
 public class UserService {
     private final UsuarioRepository userRepository;
     private final PasswordEncoder passwordEncoder;
@@ -44,12 +46,14 @@ public class UserService {
     public  UsuarioResponse cadastrar (UsuarioRequest request) {
         
         if (userRepository.existsByEmail(request.getEmail())) {
+            log.warn("Operação cadastrar bloqueada: email ja cadastrado");
             throw new RuntimeException("email ja cadastrado");
             
         }
         
         Usuario user = converterUser(request);
         Usuario userSalvo = salvaUser(user);
+    log.info("Operação cadastrar concluída entidade=User id={}", userSalvo.getId());
         return converterUserResponse(userSalvo);
     }
     

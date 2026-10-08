@@ -10,6 +10,7 @@ import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import sistema.Academia_api.lancamentos.Lancamento;
 import sistema.Academia_api.lancamentos.LancamentoRequest;
 import sistema.Academia_api.lancamentos.LancamentoResponse;
@@ -19,6 +20,7 @@ import sistema.Academia_api.repository.LancamentoRepository;
 
 @Service
 @RequiredArgsConstructor 
+@Slf4j
 public class LancamentoService {
 
 private final LancamentoRepository lancamentoRepository;
@@ -56,6 +58,7 @@ public LancamentoResponse cadastrar(LancamentoRequest request) {
     Lancamento lancamento = converterLancamento(request);
 
     Lancamento lancamentoSalvo = salvarLancamento(lancamento);
+    log.info("Operação cadastrar concluída entidade=Lancamento id={}", lancamentoSalvo.getId());
 
     return converterLancamentoResponse(lancamentoSalvo);
 }
@@ -90,6 +93,7 @@ public LancamentoResponse alterar(Long id, LancamentoRequest request) {
     lancamento.setTipo(request.getTipo());
 
     Lancamento lancamentoSalvo = salvarLancamento(lancamento);
+    log.info("Operação alterar concluída entidade=Lancamento id={}", lancamentoSalvo.getId());
     return converterLancamentoResponse(lancamentoSalvo);
 }
 
@@ -98,6 +102,7 @@ public void deletar(Long id){
      Lancamento lancamento = lancamentoRepository.findById(id).orElseThrow(()-> new RuntimeException("lançamento não encontrado"));
      
      lancamentoRepository.delete(lancamento);
+    log.info("Registro excluído entidade=Lancamento id={}", lancamento.getId());
 }
 
 public ResumoFinanceiroResponse resumoPorPeriodo(LocalDate inicio, LocalDate fim) {

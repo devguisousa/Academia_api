@@ -71,6 +71,7 @@ public class GlobalExceptionHandler {
     @ExceptionHandler(MethodArgumentNotValidException.class)
     public ResponseEntity<Map<String, Object>> validacao(
             MethodArgumentNotValidException e) {
+        log.warn("Requisição rejeitada por dados inválidos");
 
         Map<String, Object> erros = new HashMap<>();
 

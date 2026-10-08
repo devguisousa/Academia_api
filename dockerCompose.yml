@@ -1,0 +1,90 @@
+services:
+
+  postgres:
+    image: postgres:17
+    container_name: academia_postgres
+    restart: always
+
+    environment:
+      POSTGRES_DB: academia_db
+      POSTGRES_USER: ${DB_USER}
+      POSTGRES_PASSWORD: ${DB_PASSWORD}
+
+    ports:
+      - "5433:5432"
+
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U ${DB_USER} -d academia_db"]
+      interval: 5s
+      timeout: 5s
+      retries: 10
+
+
+  api:
+    build: .
+    container_name: academia_api
+    restart: always
+
+    depends_on:
+      postgres:
+        condition: service_healthy
+
+    environment:
+      DB_URL: jdbc:postgresql://postgres:5432/academia_db
+      DB_USER: ${DB_USER}
+      DB_PASSWORD: ${DB_PASSWORD}
+      JWT_SECRET: ${JWT_SECRET}
+
+    ports:
+      - "8080:8080"
+
+    volumes:
+      - ./uploads:/app/uploads
+      - ./logs:/app/logs
+
+
+  backup:
+    image: postgres:17
+    container_name: academia_backup
+    restart: always
+
+    depends_on:
+      postgres:
+        condition: service_healthy
+
+    environment:
+      PGPASSWORD: ${DB_PASSWORD}
+
+    volumes:
+      - ./backups:/backups
+
+    command: >
+      sh -c '
+      while true; do
+        pg_dump
+        -h postgres
+        -U ${DB_USER}
+        -d academia_db
+        -F c
+        -f /backups/academia_$$(date +%Y-%m-%d_%H-%M).dump;
+       
+
+          find /backups
+          -type f
+           -name "*.dump"
+            -mtime +30
+              -delete;
+        
+        sleep 86400;
+
+      done
+      '
+
+
+volumes:
+  postgres_data:
+
+

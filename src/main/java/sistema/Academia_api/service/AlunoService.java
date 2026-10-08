@@ -14,6 +14,7 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import sistema.Academia_api.Matricula.Matricula;
 import sistema.Academia_api.alunos.Aluno;
 import sistema.Academia_api.alunos.AlunoRequest;
@@ -33,6 +34,7 @@ import sistema.Academia_api.repository.MensalidadeRepository;
 
 @Service
 @RequiredArgsConstructor  
+@Slf4j
 public class AlunoService {
 
 private final AlunoRepository alunoRepository; 
@@ -83,13 +85,16 @@ public AlunoResponse cadastrarAluno(AlunoRequest request) {
 Aluno aluno = converterAluno(request);
 
 if (alunoRepository.existsByCpf(aluno.getCpf())) {
+    log.warn("Operação cadastrarAluno bloqueada: CPF já cadastrado");
     throw new RuntimeException("CPF já cadastrado");
 } 
 if(alunoRepository.existsByEmail(aluno.getEmail())) {
+    log.warn("Operação cadastrarAluno bloqueada: Email já cadastrado");
     throw new EmailJaCadastrado("Email já cadastrado");
 }
 
 Aluno alunoSalvo = salvarAluno(aluno);
+    log.info("Operação cadastrarAluno concluída entidade=Aluno id={}", alunoSalvo.getId());
 return converterAlunoResponse(alunoSalvo);
 
 }
@@ -101,6 +106,7 @@ return converterAlunoResponse(alunoSalvo);
         Page<Aluno> alunos = alunoRepository.findByNomeContainingIgnoreCase(nome, pageable);
 
         if (alunos.isEmpty()) {
+            log.warn("Operação buscar bloqueada: Aluno não encontrado");
             throw new AlunoException("Aluno não encontrado");
         }
 
@@ -111,16 +117,19 @@ public void deletarAluno(Long id) {
     Aluno aluno = alunoRepository.findById(id).orElseThrow(() -> new AlunoException("Aluno não encontrado"));
 
     alunoRepository.delete(aluno);
+    log.info("Registro excluído entidade=Aluno id={}", aluno.getId());
 }
 
 public AlunoResponse atualizarAluno(Long id, AlunoRequest request) {
     Aluno aluno = alunoRepository.findById(id).orElseThrow(() -> new AlunoException("Aluno não encontrado"));
 
     if (!aluno.getCpf().equals(request.getCpf())) {
+        log.warn("Operação atualizarAluno bloqueada: CPF não pode ser alterado alunoId={}", id);
         throw new CpfJaCadastrado("CPF não pode ser alterado");
     }
 
     if (alunoRepository.existsByEmail(request.getEmail()) && !aluno.getEmail().equals(request.getEmail())) {
+        log.warn("Operação atualizarAluno bloqueada: Email já cadastrado alunoId={}", id);
         throw new EmailJaCadastrado("Email já cadastrado");
     }
 
@@ -132,6 +141,7 @@ public AlunoResponse atualizarAluno(Long id, AlunoRequest request) {
     aluno.setSexo(request.getSexo());
     aluno.setEndereco(request.getEndereco());
     Aluno alunoSalvo = salvarAluno(aluno);
+    log.info("Operação atualizarAluno concluída entidade=Aluno id={}", alunoSalvo.getId());
     return converterAlunoResponse(alunoSalvo);
 
 }     
@@ -140,6 +150,7 @@ public AlunoResponse ativarAluno(Long id) {
     Aluno aluno = alunoRepository.findById(id).orElseThrow(() -> new AlunoException("Aluno não encontrado"));
     aluno.setAtivo(true);
     Aluno alunoSalvo = salvarAluno(aluno);
+    log.info("Operação ativarAluno concluída entidade=Aluno id={}", alunoSalvo.getId());
     return converterAlunoResponse(alunoSalvo);
 }
 
@@ -147,6 +158,7 @@ public AlunoResponse desativarAluno(Long id) {
     Aluno aluno = alunoRepository.findById(id).orElseThrow(() -> new AlunoException("Aluno não encontrado"));
     aluno.setAtivo(false);
     Aluno alunoSalvo = salvarAluno(aluno);
+    log.info("Operação desativarAluno concluída entidade=Aluno id={}", alunoSalvo.getId());
     return converterAlunoResponse(alunoSalvo);
 
 }
@@ -175,6 +187,7 @@ public AlunoResponse salvarFotos(Long id, MultipartFile foto) throws IOException
     Files.write(caminhoFoto, foto.getBytes());
     aluno.setFotoURL("/uploads/alunos/" + fotosAlunos);
     Aluno alunoSalvo = salvarAluno(aluno);
+    log.info("Operação salvarFotos concluída entidade=Aluno id={}", alunoSalvo.getId());
     return converterAlunoResponse(alunoSalvo);
 }
 

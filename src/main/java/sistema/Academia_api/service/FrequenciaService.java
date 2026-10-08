@@ -11,6 +11,7 @@ import org.springframework.stereotype.Service;
 
 
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import sistema.Academia_api.alunos.Aluno;
 import sistema.Academia_api.exception.AlunoException;
 import sistema.Academia_api.exception.RegraNegocioException;
@@ -22,6 +23,7 @@ import sistema.Academia_api.repository.FrenquenciaRepository;
 
 @Service 
 @RequiredArgsConstructor 
+@Slf4j
 public class FrequenciaService {
 
     private final FrenquenciaRepository frenquenciaRepository;
@@ -61,6 +63,8 @@ public FrequenciaResponse cadastrar(FrequenciaRequest request) {
     Frequencia frequencia = converterFrequencia(request);
 
     Frequencia frequenciaSalva = salvarFrequencia(frequencia);
+    
+    log.info("Operação cadastrar concluída entidade=Frequencia id={}", frequenciaSalva.getId());
 
     return converterFrequenciaResponse(frequenciaSalva);
 }

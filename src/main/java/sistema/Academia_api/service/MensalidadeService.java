@@ -8,6 +8,7 @@ import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Service;
 
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import sistema.Academia_api.Matricula.Matricula;
 import sistema.Academia_api.exception.RegraNegocioException;
 import sistema.Academia_api.mensalidade.Mensalidade;
@@ -23,6 +24,7 @@ import java.util.List;
 
 @Service 
 @RequiredArgsConstructor 
+@Slf4j
 public class MensalidadeService {
 
     private final MensalidadeRepository mensalidadeRepository;
@@ -68,10 +70,12 @@ public class MensalidadeService {
         Matricula matricula = mensalidade.getMatricula();
 
         if(Boolean.FALSE.equals(matricula.getAtivo())) {
+            log.warn("Operação cadastrar bloqueada: matricula esta desativada matriculaId={}", matricula.getId());
             throw new RegraNegocioException("matricula esta desativada");
         }
 
         Mensalidade mensalidadeSalva = salvarMensalidade(mensalidade);
+    log.info("Operação cadastrar concluída entidade=Mensalidade id={}", mensalidadeSalva.getId());
 
         return converterResponse(mensalidadeSalva);
 
@@ -90,10 +94,12 @@ public class MensalidadeService {
         Mensalidade mensalidade = mensalidadeRepository.findById(id).orElseThrow(() -> new RuntimeException("Mensalidade não encontrada"));
 
         if (mensalidade.getStatus() == StatusMensalidade.PAGO) {
+            log.warn("Operação alterar bloqueada: mensalidade já esta paga mensalidadeId={}", mensalidade.getId());
             throw new RegraNegocioException("mensalidade já esta paga"); 
         }
 
         if (mensalidade.getStatus() == StatusMensalidade.CANCELADO) {
+          log.warn("Operação alterar bloqueada: mensalidade cancelada mensalidadeId={}", mensalidade.getId());
           throw new RegraNegocioException("mensalidade cancelada");  
         }
 
@@ -101,6 +107,7 @@ public class MensalidadeService {
         mensalidade.setDataVencimento(request.getDataVencimento());
 
         Mensalidade mensalidadeNova = salvarMensalidade(mensalidade);
+    log.info("Operação alterar concluída entidade=Mensalidade id={}", mensalidadeNova.getId());
 
         return converterResponse(mensalidadeNova);
      }
@@ -116,10 +123,12 @@ public class MensalidadeService {
          Mensalidade mensalidade = mensalidadeRepository.findById(id).orElseThrow(() -> new RuntimeException("Mensalidade não encontrada"));
 
          if(mensalidade.getStatus() == StatusMensalidade.PAGO ) {
+            log.warn("Operação cancelar bloqueada: mensalidade já esta paga mensalidadeId={}", mensalidade.getId());
             throw new RegraNegocioException("mensalidade já esta paga");
          }
 
          if (mensalidade.getStatus() == StatusMensalidade.CANCELADO) {
+            log.warn("Operação cancelar bloqueada: Mensalidade já está cancelada mensalidadeId={}", mensalidade.getId());
             throw new RegraNegocioException("Mensalidade já está cancelada");
          }
 
@@ -128,6 +137,7 @@ public class MensalidadeService {
 
 
          Mensalidade mensalidadeCancelada = salvarMensalidade(mensalidade);
+    log.info("Operação cancelar concluída entidade=Mensalidade id={}", mensalidadeCancelada.getId());
 
          return converterResponse(mensalidadeCancelada);
      }
@@ -141,6 +151,7 @@ public class MensalidadeService {
 
             mensalidade.setStatus(StatusMensalidade.ATRASADO);
             mensalidadeRepository.save(mensalidade);
+    log.info("Mensalidade marcada como atrasada id={}", mensalidade.getId());
 
 
         }
@@ -156,6 +167,7 @@ public class MensalidadeService {
             if (mensalidade.getStatus() == StatusMensalidade.PENDENTE && mensalidade.getDataVencimento().isBefore(LocalDate.now())) {
                 mensalidade.setStatus(StatusMensalidade.ATRASADO);
                 mensalidadeRepository.save(mensalidade);
+    log.info("Mensalidade marcada como atrasada id={}", mensalidade.getId());
             }
         }
      }

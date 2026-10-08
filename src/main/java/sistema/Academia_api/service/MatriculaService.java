@@ -9,6 +9,7 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import sistema.Academia_api.Matricula.Matricula;
 import sistema.Academia_api.Matricula.MatriculaRequest;
 import sistema.Academia_api.Matricula.MatriculaResponse;
@@ -23,6 +24,7 @@ import sistema.Academia_api.repository.PlanoRepository;
 
 @Service 
 @RequiredArgsConstructor 
+@Slf4j
 public class MatriculaService {
 
     private final MatriculaRepository matriculaRepository;
@@ -102,19 +104,23 @@ public class MatriculaService {
     Long alunoId = matricula.getAluno().getId();
 
      if(matriculaRepository.existsByAluno_IdAndAtivoTrue(alunoId)) {
+        log.warn("Operação cadastrarMatricula bloqueada: Aluno já possui outra matrícula ativa alunoId={} planoId={}", matricula.getAluno().getId(), matricula.getPlano().getId());
         throw new RegraNegocioException("Aluno já possui outra matrícula ativa");
     }
 
     if (Boolean.FALSE.equals(matricula.getAluno().getAtivo())) {
+    log.warn("Operação cadastrarMatricula bloqueada: Aluno desativado alunoId={} planoId={}", matricula.getAluno().getId(), matricula.getPlano().getId());
     throw new RegraNegocioException("Aluno desativado");
 }
 
     if(Boolean.FALSE.equals(matricula.getPlano().getAtivo())) {
+        log.warn("Operação cadastrarMatricula bloqueada: plano desativado alunoId={} planoId={}", matricula.getAluno().getId(), matricula.getPlano().getId());
         throw new RegraNegocioException("plano desativado");
     }
 
 
     Matricula matriculaSalva = salvarMatricula(matricula);
+    log.info("Operação cadastrarMatricula concluída entidade=Matricula id={}", matriculaSalva.getId());
 
     return converterResponse(matriculaSalva);
 }
@@ -142,20 +148,24 @@ public MatriculaResponse ativarMatricula(Long id) {
     Long alunoId = matricula.getAluno().getId();
 
     if(matriculaRepository.existsByAluno_IdAndAtivoTrueAndIdNot(alunoId, id)) {
+        log.warn("Operação ativarMatricula bloqueada: Aluno já possui outra matrícula ativa alunoId={} planoId={}", matricula.getAluno().getId(), matricula.getPlano().getId());
         throw new RegraNegocioException("Aluno já possui outra matrícula ativa");
     }
 
     if (Boolean.FALSE.equals(matricula.getAluno().getAtivo())) {
+    log.warn("Operação ativarMatricula bloqueada: Aluno desativado alunoId={} planoId={}", matricula.getAluno().getId(), matricula.getPlano().getId());
     throw new RegraNegocioException("Aluno desativado");
     }
 
     if (Boolean.FALSE.equals(matricula.getPlano().getAtivo())) {
+    log.warn("Operação ativarMatricula bloqueada: Plano desativado alunoId={} planoId={}", matricula.getAluno().getId(), matricula.getPlano().getId());
     throw new RegraNegocioException("Plano desativado");
     }
     
     matricula.setAtivo(true);
 
     Matricula matriculaSalva = salvarMatricula(matricula);
+    log.info("Operação ativarMatricula concluída entidade=Matricula id={}", matriculaSalva.getId());
 
     return converterResponse(matriculaSalva);
 
@@ -168,6 +178,7 @@ public MatriculaResponse desativarMatricula(Long id) {
     matricula.setAtivo(false);
 
     Matricula matriculaSalva = salvarMatricula(matricula);
+    log.info("Operação desativarMatricula concluída entidade=Matricula id={}", matriculaSalva.getId());
 
     return converterResponse(matriculaSalva);
 
@@ -182,6 +193,7 @@ public MatriculaResponse alterarMatricula(Long id, MatriculaRequest request) {
    
    
     if (Boolean.FALSE.equals(plano.getAtivo())) {
+        log.warn("Operação alterarMatricula bloqueada: Plano desativado matriculaId={} planoId={}", id, plano.getId());
         throw new RegraNegocioException("Plano desativado");
     }
     
@@ -190,6 +202,7 @@ public MatriculaResponse alterarMatricula(Long id, MatriculaRequest request) {
     matricula.setDataFim(matricula.getDataInicio().plusDays(plano.getDuracao()));
 
     Matricula matriculaSalva = salvarMatricula(matricula);
+    log.info("Operação alterarMatricula concluída entidade=Matricula id={}", matriculaSalva.getId());
 
     return converterResponse(matriculaSalva);
     
