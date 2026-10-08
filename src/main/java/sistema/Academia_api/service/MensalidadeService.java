@@ -9,6 +9,7 @@ import org.springframework.stereotype.Service;
 
 import lombok.RequiredArgsConstructor;
 import sistema.Academia_api.Matricula.Matricula;
+import sistema.Academia_api.exception.RegraNegocioException;
 import sistema.Academia_api.mensalidade.Mensalidade;
 import sistema.Academia_api.mensalidade.MensalidadeRequest;
 import sistema.Academia_api.mensalidade.MensalidadeResponse;
@@ -67,7 +68,7 @@ public class MensalidadeService {
         Matricula matricula = mensalidade.getMatricula();
 
         if(Boolean.FALSE.equals(matricula.getAtivo())) {
-            throw new RuntimeException("matricula esta desativada");
+            throw new RegraNegocioException("matricula esta desativada");
         }
 
         Mensalidade mensalidadeSalva = salvarMensalidade(mensalidade);
@@ -89,11 +90,11 @@ public class MensalidadeService {
         Mensalidade mensalidade = mensalidadeRepository.findById(id).orElseThrow(() -> new RuntimeException("Mensalidade não encontrada"));
 
         if (mensalidade.getStatus() == StatusMensalidade.PAGO) {
-            throw new RuntimeException("mensalidade já esta paga"); 
+            throw new RegraNegocioException("mensalidade já esta paga"); 
         }
 
         if (mensalidade.getStatus() == StatusMensalidade.CANCELADO) {
-          throw new RuntimeException("mensalidade cancelada");  
+          throw new RegraNegocioException("mensalidade cancelada");  
         }
 
         mensalidade.setValor(request.getValor());
@@ -115,11 +116,11 @@ public class MensalidadeService {
          Mensalidade mensalidade = mensalidadeRepository.findById(id).orElseThrow(() -> new RuntimeException("Mensalidade não encontrada"));
 
          if(mensalidade.getStatus() == StatusMensalidade.PAGO ) {
-            throw new RuntimeException("mensalidade já esta paga");
+            throw new RegraNegocioException("mensalidade já esta paga");
          }
 
          if (mensalidade.getStatus() == StatusMensalidade.CANCELADO) {
-            throw new RuntimeException("Mensalidade já está cancelada");
+            throw new RegraNegocioException("Mensalidade já está cancelada");
          }
 
 
@@ -133,7 +134,7 @@ public class MensalidadeService {
 
      public MensalidadeResponse verificarAtraso(Long id) {
         Mensalidade mensalidade = mensalidadeRepository.findById(id)
-                .orElseThrow(() -> new RuntimeException(("mensalidade não encontrada")));
+                .orElseThrow(() -> new RegraNegocioException(("mensalidade não encontrada")));
 
         if (mensalidade.getStatus() == StatusMensalidade.PENDENTE && mensalidade.getDataVencimento()
                 .isBefore(LocalDate.now())) {

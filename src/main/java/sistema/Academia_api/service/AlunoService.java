@@ -182,7 +182,7 @@ public PerfilAlunoResponse perfil(Long id) {
 
     Aluno aluno = alunoRepository.findById(id)
             .orElseThrow(() ->
-                    new RuntimeException("Aluno não encontrado"));
+                    new AlunoException("Aluno não encontrado"));
 
     PerfilAlunoResponse response = new PerfilAlunoResponse();
 

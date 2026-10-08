@@ -7,6 +7,8 @@ import sistema.Academia_api.repository.PlanoRepository;
 import sistema.Academia_api.Planos.Plano;
 import sistema.Academia_api.Planos.PlanoRequest;
 import sistema.Academia_api.Planos.PlanoResponse;
+import sistema.Academia_api.exception.RecursoNaoEncontradoException;
+
 import java.util.stream.Collectors;
 import java.util.List;
 
@@ -46,20 +48,20 @@ public class PlanoService {
     }
 
     public PlanoResponse desativarPlano(Long id) {
-        Plano plano = planoRepository.findById(id).orElseThrow(() -> new RuntimeException("Plano não encontrado"));
+        Plano plano = planoRepository.findById(id).orElseThrow(() -> new RecursoNaoEncontradoException("Plano não encontrado"));
         plano.setAtivo(false);
         return converterPlanoResponse(planoRepository.save(plano));
     }
 
     public PlanoResponse ativarPlano(Long id) {
-        Plano plano = planoRepository.findById(id).orElseThrow(() -> new RuntimeException("Plano não encontrado"));
+        Plano plano = planoRepository.findById(id).orElseThrow(() -> new RecursoNaoEncontradoException("Plano não encontrado"));
         plano.setAtivo(true);
         return converterPlanoResponse(planoRepository.save(plano));
     }
 
 
     public PlanoResponse alterarPlano(Long id, PlanoRequest request) {
-        Plano plano = planoRepository.findById(id).orElseThrow(() -> new RuntimeException("Plano não encontrado"));
+        Plano plano = planoRepository.findById(id).orElseThrow(() -> new RecursoNaoEncontradoException("Plano não encontrado"));
         plano.setNome(request.getNome());
         plano.setValor(request.getValor());
         plano.setDuracao(request.getDuracao());
@@ -72,7 +74,7 @@ public class PlanoService {
         return converterPlanoResponse(salvarPlano(plano));
     }
     public PlanoResponse buscarPlanoPorId(Long id) {
-        Plano plano = planoRepository.findById(id).orElseThrow(() -> new RuntimeException("Plano não encontrado"));
+        Plano plano = planoRepository.findById(id).orElseThrow(() -> new RecursoNaoEncontradoException("Plano não encontrado"));
         return converterPlanoResponse(plano);
     }
 }

@@ -1,34 +1,125 @@
 package sistema.Academia_api.exception;
 
-import org.springframework.web.bind.annotation.ExceptionHandler;
-import org.springframework.web.bind.annotation.RestControllerAdvice;
-import org.springframework.http.HttpStatus;
-import org.springframework.http.ResponseEntity;
+import java.time.LocalDateTime;
+import java.util.HashMap;
 import java.util.Map;
 
-@RestControllerAdvice 
+
+import lombok.extern.slf4j.Slf4j;
+import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseEntity;
+import org.springframework.web.bind.MethodArgumentNotValidException;
+import org.springframework.web.bind.annotation.ExceptionHandler;
+import org.springframework.web.bind.annotation.RestControllerAdvice;
+
+@Slf4j 
+@RestControllerAdvice
 public class GlobalExceptionHandler {
-    
-    @ExceptionHandler(AlunoException.class)
 
-    public ResponseEntity<Map<String, String>> tratarAlunoNaoEncontrado(AlunoException e) {
+    @ExceptionHandler(RecursoNaoEncontradoException.class)
+    public ResponseEntity<Map<String, Object>> recursoNaoEncontrado(
+            RecursoNaoEncontradoException e) {
 
-        return ResponseEntity
-        .status(HttpStatus.NOT_FOUND)
-        .body(Map.of("error", e.getMessage()));
+        log.warn("Recurso não encontrado: {}", e.getMessage());
+
+        return resposta(
+                HttpStatus.NOT_FOUND,
+                e.getMessage()
+        );
     }
 
-    @ExceptionHandler (CpfJaCadastrado.class)
-    public ResponseEntity<Map<String, String>> cpfJaCadastrado(CpfJaCadastrado e) {
-        return ResponseEntity
-        .status(HttpStatus.CONFLICT)
-        .body(Map.of("error", e.getMessage()));
+    @ExceptionHandler(EmailJaCadastrado.class)
+    public ResponseEntity<Map<String, Object>> emailJaCadastrado(
+            EmailJaCadastrado e) {
+
+        return resposta(
+                HttpStatus.CONFLICT,
+                e.getMessage()
+        );
     }
 
-    @ExceptionHandler (EmailJaCadastrado.class)
-    public ResponseEntity<Map<String, String>> emailJaCadastrado(EmailJaCadastrado e) {
+    @ExceptionHandler(CpfJaCadastrado.class)
+    public ResponseEntity<Map<String, Object>> cpfJaCadastrado(
+            CpfJaCadastrado e) {
+
+        return resposta(
+                HttpStatus.CONFLICT,
+                e.getMessage()
+        );
+    }
+
+    @ExceptionHandler(RegraNegocioException.class)
+    public ResponseEntity<Map<String, Object>> regraNegocio(
+            RegraNegocioException e) {
+
+        return resposta(
+                HttpStatus.CONFLICT,
+                e.getMessage()
+        );
+    }
+
+    @ExceptionHandler(CredenciaisInvalidasException.class)
+    public ResponseEntity<Map<String, Object>> credenciaisInvalidas(
+            CredenciaisInvalidasException e) {
+
+        return resposta(
+                HttpStatus.UNAUTHORIZED,
+                e.getMessage()
+        );
+    }
+
+    @ExceptionHandler(MethodArgumentNotValidException.class)
+    public ResponseEntity<Map<String, Object>> validacao(
+            MethodArgumentNotValidException e) {
+
+        Map<String, Object> erros = new HashMap<>();
+
+        erros.put("status", 400);
+        erros.put("erro", "Dados inválidos");
+        erros.put("data", LocalDateTime.now());
+
+        Map<String, String> campos = new HashMap<>();
+
+        e.getBindingResult()
+                .getFieldErrors()
+                .forEach(erro ->
+                        campos.put(
+                                erro.getField(),
+                                erro.getDefaultMessage()
+                        )
+                );
+
+        erros.put("campos", campos);
+
         return ResponseEntity
-        .status(HttpStatus.CONFLICT)
-        .body(Map.of("error", e.getMessage()));
+                .status(HttpStatus.BAD_REQUEST)
+                .body(erros);
+    }
+
+    @ExceptionHandler(Exception.class)
+    public ResponseEntity<Map<String, Object>> erroInterno(
+            Exception e) {
+
+                log.error("Erro interno não tratado", e);
+
+        return resposta(
+                HttpStatus.INTERNAL_SERVER_ERROR,
+                "Erro interno do servidor"
+        );
+    }
+
+    private ResponseEntity<Map<String, Object>> resposta(
+            HttpStatus status,
+            String mensagem) {
+
+        Map<String, Object> body = new HashMap<>();
+
+        body.put("status", status.value());
+        body.put("erro", mensagem);
+        body.put("data", LocalDateTime.now());
+
+        return ResponseEntity
+                .status(status)
+                .body(body);
     }
 }

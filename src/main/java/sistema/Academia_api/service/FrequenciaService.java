@@ -13,6 +13,7 @@ import org.springframework.stereotype.Service;
 import lombok.RequiredArgsConstructor;
 import sistema.Academia_api.alunos.Aluno;
 import sistema.Academia_api.exception.AlunoException;
+import sistema.Academia_api.exception.RegraNegocioException;
 import sistema.Academia_api.frequencia.Frequencia;
 import sistema.Academia_api.frequencia.FrequenciaRequest;
 import sistema.Academia_api.frequencia.FrequenciaResponse;
@@ -111,7 +112,7 @@ public long diasSemComparecer(Long alunoId) {
     
 
     Frequencia ultimaFrequencia = frenquenciaRepository.findTopByAluno_IdOrderByDataEntradaDesc(alunoId)
-    .orElseThrow(() -> new RuntimeException("Aluno ainda não possui registro de frequência"));
+    .orElseThrow(() -> new RegraNegocioException("Aluno ainda não possui registro de frequência"));
 
     LocalDate ultimaData = ultimaFrequencia.getDataEntrada().toLocalDate();
 

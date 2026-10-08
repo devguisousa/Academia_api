@@ -8,6 +8,9 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
+import sistema.Academia_api.exception.RecursoNaoEncontradoException;
+import sistema.Academia_api.exception.RegraNegocioException;
 import sistema.Academia_api.mensalidade.Mensalidade;
 import sistema.Academia_api.mensalidade.StatusMensalidade;
 import sistema.Academia_api.pagamentos.Pagamento;
@@ -17,6 +20,7 @@ import sistema.Academia_api.repository.MensalidadeRepository;
 import sistema.Academia_api.repository.PagamentoRepository;
 
 @Service
+@Slf4j 
 @RequiredArgsConstructor 
 public class PagamentoService {
 
@@ -27,7 +31,7 @@ public class PagamentoService {
     private Pagamento converterPagamento(PagamentoRequest request) {
 
         Mensalidade mensalidade = mensalidadeRepository.findById(request.getMensalidadeId())
-                .orElseThrow(() -> new RuntimeException("mensalidade não existe"));
+                .orElseThrow(() -> new RecursoNaoEncontradoException("mensalidade não existe"));
 
         Pagamento pagamento = new Pagamento();
 
@@ -73,7 +77,7 @@ public class PagamentoService {
     public PagamentoResponse buscar(Long id) {
 
         Pagamento pagamento = pagamentoRepository.findById(id)
-                .orElseThrow(() -> new RuntimeException("pagamento não encontrado"));
+                .orElseThrow(() -> new RecursoNaoEncontradoException("pagamento não encontrado"));
 
         return converterPagamentoResponse(pagamento);
 
@@ -87,21 +91,43 @@ public class PagamentoService {
         Mensalidade mensalidade = pagamento.getMensalidade();
 
         if (mensalidade.getStatus() == StatusMensalidade.CANCELADO) {
-        throw new RuntimeException("Mensalidade está cancelada");
+
+             log.warn(
+            "Tentativa de pagar mensalidade cancelada id={}",
+            mensalidade.getId()
+    );
+        throw new RegraNegocioException("Mensalidade está cancelada");
         }
 
         if (mensalidade.getStatus() == StatusMensalidade.PAGO) {
-        throw new RuntimeException("Mensalidade já está paga");
+
+             log.warn(
+            "Tentativa de pagar mensalidade já paga id={}",
+            mensalidade.getId()
+    );
+
+        throw new RegraNegocioException("Mensalidade já está paga");
         }
         
         if (pagamento.getValor().compareTo(mensalidade.getValor()) != 0)  {
-            throw new RuntimeException("Valor do pagamento deve ser igual ao valor da mensalidade");
+
+            
+    log.warn(
+            "Valor de pagamento inválido mensalidadeId={}",
+            mensalidade.getId()
+    );
+            throw new RegraNegocioException("Valor do pagamento deve ser igual ao valor da mensalidade");
         }
         
             Pagamento pagamentoSalvo = salvarPagamento(pagamento);
             
             mensalidade.setStatus(StatusMensalidade.PAGO);
             mensalidadeRepository.save(mensalidade);
+
+            log.info(
+        "Pagamento registrado id={} mensalidadeId={}",
+        pagamentoSalvo.getId(),
+        mensalidade.getId());
         
         
         return converterPagamentoResponse(pagamentoSalvo);

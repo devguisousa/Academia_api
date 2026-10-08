@@ -14,6 +14,9 @@ import sistema.Academia_api.Matricula.MatriculaRequest;
 import sistema.Academia_api.Matricula.MatriculaResponse;
 import sistema.Academia_api.Planos.Plano;
 import sistema.Academia_api.alunos.Aluno;
+import sistema.Academia_api.exception.AlunoException;
+import sistema.Academia_api.exception.RecursoNaoEncontradoException;
+import sistema.Academia_api.exception.RegraNegocioException;
 import sistema.Academia_api.repository.AlunoRepository;
 import sistema.Academia_api.repository.MatriculaRepository;
 import sistema.Academia_api.repository.PlanoRepository;
@@ -34,10 +37,10 @@ public class MatriculaService {
     private Matricula converteMatricula(MatriculaRequest request) {
         
         Aluno aluno = alunoRepository.findById(request.getAlunoId())
-        .orElseThrow(() -> new RuntimeException("aluno não encontrado"));
+        .orElseThrow(() -> new AlunoException("aluno não encontrado"));
 
         Plano plano = planoRepository.findById(request.getPlanoId())
-        .orElseThrow(()-> new RuntimeException("plano não encontrado"));
+        .orElseThrow(()-> new RecursoNaoEncontradoException("plano não encontrado"));
 
         Matricula matricula = new Matricula();
 
@@ -99,15 +102,15 @@ public class MatriculaService {
     Long alunoId = matricula.getAluno().getId();
 
      if(matriculaRepository.existsByAluno_IdAndAtivoTrue(alunoId)) {
-        throw new RuntimeException("Aluno já possui outra matrícula ativa");
+        throw new RegraNegocioException("Aluno já possui outra matrícula ativa");
     }
 
     if (Boolean.FALSE.equals(matricula.getAluno().getAtivo())) {
-    throw new RuntimeException("Aluno desativado");
+    throw new RegraNegocioException("Aluno desativado");
 }
 
     if(Boolean.FALSE.equals(matricula.getPlano().getAtivo())) {
-        throw new RuntimeException("plano desativado");
+        throw new RegraNegocioException("plano desativado");
     }
 
 
@@ -125,7 +128,7 @@ public Page<MatriculaResponse> listar(int page, int size) {
 public MatriculaResponse buscarMatricula(Long id){
 
     Matricula matricula = matriculaRepository.findById(id)
-    .orElseThrow(() -> new RuntimeException("Matricula não encontratada"));
+    .orElseThrow(() -> new RecursoNaoEncontradoException("Matricula não encontratada"));
 
     return converterResponse(matricula);
 
@@ -134,20 +137,20 @@ public MatriculaResponse buscarMatricula(Long id){
 
 public MatriculaResponse ativarMatricula(Long id) {
     Matricula matricula = matriculaRepository.findById(id)
-    .orElseThrow(() -> new RuntimeException("Matricula não encontrada"));
+    .orElseThrow(() -> new RecursoNaoEncontradoException("Matricula não encontrada"));
 
     Long alunoId = matricula.getAluno().getId();
 
     if(matriculaRepository.existsByAluno_IdAndAtivoTrueAndIdNot(alunoId, id)) {
-        throw new RuntimeException("Aluno já possui outra matrícula ativa");
+        throw new RegraNegocioException("Aluno já possui outra matrícula ativa");
     }
 
     if (Boolean.FALSE.equals(matricula.getAluno().getAtivo())) {
-    throw new RuntimeException("Aluno desativado");
+    throw new RegraNegocioException("Aluno desativado");
     }
 
     if (Boolean.FALSE.equals(matricula.getPlano().getAtivo())) {
-    throw new RuntimeException("Plano desativado");
+    throw new RegraNegocioException("Plano desativado");
     }
     
     matricula.setAtivo(true);
@@ -161,7 +164,7 @@ public MatriculaResponse ativarMatricula(Long id) {
  
 public MatriculaResponse desativarMatricula(Long id) {
     Matricula matricula = matriculaRepository.findById(id)
-    .orElseThrow(() -> new RuntimeException("Matricula não encontrada"));
+    .orElseThrow(() -> new RecursoNaoEncontradoException("Matricula não encontrada"));
     matricula.setAtivo(false);
 
     Matricula matriculaSalva = salvarMatricula(matricula);
@@ -173,13 +176,13 @@ public MatriculaResponse desativarMatricula(Long id) {
 public MatriculaResponse alterarMatricula(Long id, MatriculaRequest request) {
       
     Matricula matricula = matriculaRepository.findById(id)
-    .orElseThrow(() -> new RuntimeException("Matricula não encontrada"));
+    .orElseThrow(() -> new RecursoNaoEncontradoException("Matricula não encontrada"));
 
-    Plano plano = planoRepository.findById(request.getPlanoId()).orElseThrow(() -> new RuntimeException("plano não encontrado"));
+    Plano plano = planoRepository.findById(request.getPlanoId()).orElseThrow(() -> new RecursoNaoEncontradoException("plano não encontrado"));
    
    
     if (Boolean.FALSE.equals(plano.getAtivo())) {
-        throw new RuntimeException("Plano desativado");
+        throw new RegraNegocioException("Plano desativado");
     }
     
     matricula.setPlano(plano);
