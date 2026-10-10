@@ -37,6 +37,9 @@ services:
       DB_USER: ${DB_USER}
       DB_PASSWORD: ${DB_PASSWORD}
       JWT_SECRET: ${JWT_SECRET}
+      ADMIN_NOME: ${ADMIN_NOME:-}
+      ADMIN_EMAIL: ${ADMIN_EMAIL:-}
+      ADMIN_PASSWORD: ${ADMIN_PASSWORD:-}
 
     ports:
       - "8080:8080"
@@ -57,31 +60,27 @@ services:
 
     environment:
       PGPASSWORD: ${DB_PASSWORD}
+      PGUSER: ${DB_USER}
 
     volumes:
       - ./backups:/backups
 
-    command: >
-      sh -c '
-      while true; do
-        pg_dump
-        -h postgres
-        -U ${DB_USER}
-        -d academia_db
-        -F c
-        -f /backups/academia_$$(date +%Y-%m-%d_%H-%M).dump;
-       
-
-          find /backups
-          -type f
-           -name "*.dump"
-            -mtime +30
-              -delete;
-        
-        sleep 86400;
-
-      done
-      '
+    command:
+      - sh
+      - -c
+      - |
+        while true; do
+          backup="/backups/academia_$$(date +%Y-%m-%d_%H-%M-%S).dump"
+          if pg_dump -h postgres -U "$$PGUSER" -d academia_db -F c -f "$$backup.tmp"; then
+            mv "$$backup.tmp" "$$backup"
+            echo "Backup concluído com sucesso"
+            find /backups -type f -name "academia_*.dump" -mtime +30 -delete
+          else
+            rm -f "$$backup.tmp"
+            echo "Falha no backup PostgreSQL" >&2
+          fi
+          sleep 86400
+        done
 
 
 volumes:
