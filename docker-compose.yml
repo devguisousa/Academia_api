@@ -38,6 +38,11 @@ services:
       DB_PASSWORD: ${DB_PASSWORD}
       JWT_SECRET: ${JWT_SECRET}
 
+
+      ADMIN_NOME: ${ADMIN_NOME}
+      ADMIN_EMAIL: ${ADMIN_EMAIL}
+      ADMIN_PASSWORD: ${ADMIN_PASSWORD}
+
     ports:
       - "8080:8080"
 
