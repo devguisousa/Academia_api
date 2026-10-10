@@ -30,6 +30,9 @@ public class SecurityConfig {
                     
                     .requestMatchers("/auth/**").permitAll()
 
+                    .requestMatchers("/api/catraca/**")
+                    .hasAnyRole("ADMIN", "RECEPCAO")
+
                     .requestMatchers(HttpMethod.POST, "/usuarios").hasRole("ADMIN")
 
                     .requestMatchers(HttpMethod.GET, "/alunos")

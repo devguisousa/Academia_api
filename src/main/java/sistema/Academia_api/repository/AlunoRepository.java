@@ -10,6 +10,8 @@ public interface AlunoRepository extends JpaRepository<Aluno, Long> {
 
     Page<Aluno> findByNomeContainingIgnoreCase(String nome, Pageable pageable);
 
+    java.util.List<Aluno> findByPinCatraca(String pinCatraca);
+
     boolean existsByCpf(String cpf);
 
     boolean existsByEmail(String email);
